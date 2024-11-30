@@ -3,7 +3,6 @@ import {
   Plus
 } from "lucide-react"
 import { NavMain } from "./nav-menu"
-import { Calendars } from "@/components/calendars"
 import { DatePicker } from "@/components/date-picker"
 import { NavUser } from "@/components/nav-user"
 import {
