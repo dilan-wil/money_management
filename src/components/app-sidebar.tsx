@@ -28,7 +28,7 @@ const data = {
     {
       title: "Incomes",
       url: "#",
-      icon: "SquareTerminal",
+      icon: "CircleDollarSign",
       isActive: true,
       items: [
         {
@@ -44,7 +44,7 @@ const data = {
     {
       title: "Expenses",
       url: "#",
-      icon: "Bot",
+      icon: "CirclePercent",
       items: [
         {
           title: "All Expenses",

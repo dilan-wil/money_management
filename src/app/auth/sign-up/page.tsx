@@ -7,7 +7,7 @@ export default function Page() {
     console.log(background)
     return(
         <div style={{height: "100vh"}} className="flex w-full">
-            <div style={{height: "100vh"}} className="w-1/2 md:block">
+            <div style={{height: "100vh"}} className="w-1/2 hidden lg:block">
                 <Image
                     src={background}
                     alt="Background"
@@ -15,7 +15,7 @@ export default function Page() {
                     priority
                 />
             </div>            
-            <div className="w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
+            <div className="w-full lg:w-1/2 flex flex-col items-center justify-center bg-gray-100 p-8">
                 <SignUpCard />
             </div>
         </div>

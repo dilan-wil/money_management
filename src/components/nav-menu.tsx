@@ -1,4 +1,4 @@
-import { ChevronRight, type LucideIcon, SquareTerminal, Bot, Settings2 } from "lucide-react";
+import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, Settings2 } from "lucide-react";
 
 import {
   Collapsible,
@@ -18,8 +18,8 @@ import {
 
 // Map string keys to icons
 const iconMap: Record<string, LucideIcon> = {
-  SquareTerminal,
-  Bot,
+  CircleDollarSign,
+  CirclePercent,
   Settings2,
 };
 
@@ -39,7 +39,7 @@ export function NavMain({
 }) {
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Platform</SidebarGroupLabel>
+      <SidebarGroupLabel>MENU</SidebarGroupLabel>
       <SidebarMenu>
         {items.map((item) => {
           const Icon = item.icon ? iconMap[item.icon] : null; // Dynamically resolve the icon
