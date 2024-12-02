@@ -1,14 +1,17 @@
 'use client'
 import { useState, useEffect } from "react"
-//import { signup } from "@/functions/signup"
-import { useActionState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "./ui/button"
 import Link from "next/link"
 import google from "@/images/google.png"
 import { Separator } from "./ui/separator"
+import { signup } from "@/functions/signup"
+import Loader from "./loader"
 
 export function SignUpCard() {
 
+    const router = useRouter();
+    const [loading, setLoading] = useState(true)
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
@@ -72,14 +75,25 @@ export function SignUpCard() {
         setIsValid(allFieldsFilled && noErrors)
     }, [formData, errors])
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        
+        setLoading(true)
+        console.log(formData)
+        const signUp = await signup(formData)
+        console.log(signUp)
+        if(signUp === true){
+            setLoading(false)
+            router.push('/dashboard')
+        }else {
+            console.log(signUp)
+        }
+        setLoading(false)
         // Perform the submit logic here
     }
 
     return (
         <div className="flex flex-col items-center justify-center gap-4">
+            {loading && <Loader />}
             <div className="flex flex-col items-center justify-center">
                 <h1 className="text-2xl font-bold text-gray-800">Create an account !</h1>
                 <p className="text-sm text-gray-600">Create an account to fully access our app.</p>

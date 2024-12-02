@@ -1,7 +1,20 @@
+import { auth } from "./firebase"
+import { signInWithEmailAndPassword } from "firebase/auth"
 
-export async function login(formData: {}) {
-    console.log(formData)
-  // If any form fields are invalid, return early
- 
-  // Call the provider or db to create a user...
+interface FormData {
+  email: string;
+  password: string;
+}
+
+export async function login(formData: FormData) {
+    
+    const {email, password} = formData
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      return true
+      // Navigate to the home page
+    } catch (error) {
+      throw error; // Handle this in the calling component
+    }
 }

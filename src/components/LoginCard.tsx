@@ -5,8 +5,15 @@ import { Button } from "./ui/button"
 import Link from "next/link"
 import google from "@/images/google.png"
 import { Separator } from "./ui/separator"
+import { login } from "../functions/login"
+import Loader from "./loader"
+import { useRouter } from "next/navigation"
 
 export function LoginCard() {
+
+    const router = useRouter()
+
+    const [loading, setLoading] = useState(false)
 
     const [formData, setFormData] = useState({
         email: '',
@@ -54,12 +61,23 @@ export function LoginCard() {
 
     const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        
+        setLoading(true)
+        console.log(formData)
+        const loginSuccessful = await login(formData)
+        console.log(loginSuccessful)
+        if(loginSuccessful === true){
+            setLoading(false)
+            router.push('/dashboard')
+        }else {
+            console.log(loginSuccessful)
+        }
+        setLoading(false)
         // Perform the submit logic here
     }
 
     return (
         <div className="flex flex-col items-center justify-center gap-4">
+            {loading && <Loader />}
             <div className="flex flex-col items-center justify-center">
                 <h1 className="text-2xl font-bold text-gray-800">Welcome Back !</h1>
                 <p className="text-sm text-gray-600">We are please to welcome you back to our app.</p>
