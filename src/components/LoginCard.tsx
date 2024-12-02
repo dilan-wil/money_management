@@ -59,7 +59,7 @@ export function LoginCard() {
         setIsValid(allFieldsFilled && noErrors)
     }, [formData, errors])
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
         console.log(formData)
@@ -69,6 +69,7 @@ export function LoginCard() {
             setLoading(false)
             router.push('/dashboard')
         }else {
+            setLoading(false)
             console.log(loginSuccessful)
         }
         setLoading(false)

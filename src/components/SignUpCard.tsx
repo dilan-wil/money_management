@@ -11,7 +11,7 @@ import Loader from "./loader"
 export function SignUpCard() {
 
     const router = useRouter();
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
         firstName: '',
         lastName: '',
