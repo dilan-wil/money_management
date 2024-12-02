@@ -8,6 +8,22 @@ import {
   LogOut,
   Sparkles,
 } from "lucide-react"
+import { signOut } from "firebase/auth"
+import { auth } from "@/functions/firebase"
+import { useState } from "react"
+import { Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 
 import {
   Avatar,
@@ -40,6 +56,9 @@ export function NavUser({
   }
 }) {
   const { isMobile } = useSidebar()
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   return (
     <SidebarMenu>
@@ -102,12 +121,37 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={() => setIsAlertOpen(true)} className="text-red-600">
               <LogOut />
               Log out
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <AlertDialog open={isAlertOpen} onOpenChange={() => setIsAlertOpen(!isAlertOpen)}>
+            <AlertDialogTrigger asChild>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to log out from your session ?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600"
+                  onClick={() => {signOut(auth); router.push('/')}}
+                  disabled={loading}
+                >
+                  {loading && <Loader2 className='animate-spin'/>}
+                  Sign Out
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
       </SidebarMenuItem>
     </SidebarMenu>
   )

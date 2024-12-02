@@ -1,3 +1,5 @@
+'use client'
+
 import * as React from "react"
 import {
   Plus
@@ -16,6 +18,7 @@ import {
   SidebarRail,
   SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { useAuth } from "./context/auth-context"
 
 // This is sample data.
 const data = {
@@ -27,34 +30,14 @@ const data = {
   navMain: [
     {
       title: "Incomes",
-      url: "#",
+      url: "/dashboard/incomes",
       icon: "CircleDollarSign",
       isActive: true,
-      items: [
-        {
-          title: "All Incomes",
-          url: "#",
-        },
-        {
-          title: "Add an Income",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Expenses",
-      url: "#",
+      url: "/dashboard/expenses",
       icon: "CirclePercent",
-      items: [
-        {
-          title: "All Expenses",
-          url: "#",
-        },
-        {
-          title: "Add an Expense",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Settings",
@@ -75,17 +58,27 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuth();
+  const [userInfo, setUserInfo] = React.useState<{name: string, email: string, avatar: string}>({name: "", email: "", avatar: ""})
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
+    }
+    setUserInfo({name: user.displayName || "Anonymous", email: user.email || "No email", avatar: user.photoURL || "No avatar"})
+    
+  }, [])
   return (
     <Sidebar {...props}>
       <SidebarHeader className="h-16 border-b border-sidebar-border">
-        <NavUser user={data.user} />
+        <NavUser user={userInfo} />
       </SidebarHeader>
       <SidebarContent>
         <DatePicker />
         <SidebarSeparator className="mx-0" />
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
+      {/* <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton>
@@ -94,7 +87,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-      </SidebarFooter>
+      </SidebarFooter> */}
       <SidebarRail />
     </Sidebar>
   )

@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import { useState, useEffect } from "react";
 import { incomeColumns } from "@/components/columns";
 import { DataTable } from "@/components/data-table";
@@ -7,50 +7,26 @@ import { IncomeType } from "@/lib/definitions";
 import { CirclePlus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDialog } from "@/components/create-dialog";
-
-async function getData(): Promise<IncomeType[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      name: "first",
-      updatedAt: "yeahh",
-      amount: 2000,
-    },
-    {
-      id: "58498498",
-      name: "second",
-      updatedAt: "yeahh",
-      amount: 400,
-    },
-    {
-      id: "65465465",
-      name: "m.com",
-      updatedAt: "yeahh",
-      amount: 100,
-    },
-    {
-      id: "546546545",
-      name: "m@example.com",
-      updatedAt: "yeahh",
-      amount: 100,
-    },
-  ];
-}
+import { getASubCollection } from "../../../functions/get-a-sub-collection";
+import { useAuth } from "@/components/context/auth-context";
 
 export default function Page() {
+  const { user } = useAuth();
   const [data, setData] = useState<IncomeType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-
-    const fetchData = async() => {
-        const datas = await getData();
-        setData(datas)
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
     }
 
-    fetchData();
-  }, [])
+    // Set up real-time listener
+    const unsubscribe = getASubCollection("users", user.uid, "incomes", setData);
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe();
+  }, [user]);
 
   return (
     <div className="container mx-auto py-2">
@@ -70,7 +46,7 @@ export default function Page() {
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Income : 200000 XAF</div>
+      <div className="text-xl">Total Income : {data.reduce((sum, income) => sum + (income.amount || 0), 0)} XAF</div>
       <DataTable columns={incomeColumns} data={data} />
     </div>
   );

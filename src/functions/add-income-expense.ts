@@ -17,7 +17,8 @@ export async function addIncomeExpense(addData: AddData, userId: string, table: 
         // Add the document to the collection with auto-generated ID
         await addDoc(collectionRef, {
             ...addData,
-            createdAt: serverTimestamp()
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
         })
 
         return true // indicate success

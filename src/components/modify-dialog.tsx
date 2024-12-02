@@ -13,10 +13,20 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { IncomeType, ExpenseType } from "@/lib/definitions";
+import { updateASubDocument } from "@/functions/update-sub-document";
+import { useAuth } from "./context/auth-context"; 
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
+
 
 type DataType = IncomeType | ExpenseType;
 
-export function ModifyDialog({ data }: { data: DataType }) {
+export function ModifyDialog({data, table, onClose,}: {data: DataType; table: string; onClose: () => void;}) {
+
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false)
+
   const [formData, setFormData] = useState<DataType>(data);
 
   const [errors, setErrors] = useState(
@@ -38,7 +48,7 @@ export function ModifyDialog({ data }: { data: DataType }) {
     validateField(name, value);
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const newErrors = Object.entries(formData).reduce((acc, [key, value]) => {
       let error = "";
@@ -57,6 +67,30 @@ export function ModifyDialog({ data }: { data: DataType }) {
     if (Object.values(newErrors).every((error) => !error)) {
       console.log("Form submitted successfully:", formData);
       // Perform your submit logic here.
+
+      if (!user) {
+        console.error("User is not authenticated");
+        return false;
+      }
+      setLoading(true);
+      const updatedSuccessful = await updateASubDocument("users", user.uid, table, data.id, formData);
+      setLoading(false);
+
+      if (updatedSuccessful === true) {
+        onClose(); // Close the dialog
+        toast({
+          variant: "success",
+          title: "Successful.",
+          description: `${table} ${data.name} has been updated.`,
+        })
+      } else {
+        console.error("Error adding income/expense");
+        toast({
+          variant: "destructive",
+          title: "Uh oh! Something went wrong.",
+          description: "There was a problem with your request.",
+        })
+      }
     }
   };
 
@@ -87,7 +121,7 @@ export function ModifyDialog({ data }: { data: DataType }) {
                       ? "number"
                       : "text"
                   }
-                  readOnly={name === "id"} // Make the "id" field read-only
+                  readOnly={(name === "id") || loading} // Make the "id" field read-only
                 />
                 {errors[name] && (
                   <p className="text-red-500 text-xs mt-1">{errors[name]}</p>
@@ -99,7 +133,8 @@ export function ModifyDialog({ data }: { data: DataType }) {
           <DialogTrigger asChild>
             <Button variant="outline">Cancel</Button>
           </DialogTrigger>
-          <Button type="submit" className="bg-green-600">
+          <Button type="submit" className="bg-green-600" disabled={loading}>
+            {loading && <Loader2 className="animate-spin"/>}
             Save Changes
           </Button>
         </DialogFooter>

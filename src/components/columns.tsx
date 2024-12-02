@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { ColumnDef } from '@tanstack/react-table';
 import { IncomeType, ExpenseType } from '@/lib/definitions';
-import { MoreHorizontal, ArrowUpDown } from 'lucide-react';
+import { MoreHorizontal, ArrowUpDown, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -26,6 +26,9 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Dialog, DialogTrigger } from '@/components/ui/dialog';
 import { ModifyDialog } from './modify-dialog';
+import { deleteASubDocument } from '@/functions/delete-sub-document';
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './context/auth-context';
 
 type ActionMenuProps<T> = {
   item: T;
@@ -39,6 +42,35 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
 }: ActionMenuProps<T>) => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+  const { user } = useAuth();
+
+  const handleDelete = async () => {
+    if (!user) {
+      console.error("User is not authenticated");
+      return false;
+    }
+    setLoading(true);
+    const deletedSuccessful = await deleteASubDocument("users", user.uid, `${type.toLowerCase()}s`, item.id);
+    setLoading(false);
+
+    if (deletedSuccessful === true) {
+      setIsAlertOpen(false);
+      toast({
+        variant: "success",
+        title: "Successful.",
+        description: `${type} ${item.id} has been deleted successfully.`,
+      })
+    } else {
+      console.error("Error deleting document");
+      toast({
+        variant: "destructive",
+        title: "Uh oh! Something went wrong.",
+        description: "There was a problem with your request.",
+      })
+    }
+  }
 
   return (
     <div>
@@ -68,7 +100,7 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
           <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(!isDialogOpen)}>
             <DialogTrigger asChild>
                 </DialogTrigger>
-            <ModifyDialog data={item} />
+            <ModifyDialog data={item} table='incomes' onClose={() => setIsDialogOpen(false)}/>
           </Dialog>
 
           <AlertDialog open={isAlertOpen} onOpenChange={() => setIsAlertOpen(!isAlertOpen)}>
@@ -85,11 +117,10 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                 <AlertDialogAction
                   className="bg-red-600"
-                  onClick={() => {
-                    console.log(`Deleted ${type}:`, item);
-                    setIsAlertOpen(false);
-                  }}
+                  onClick={handleDelete}
+                  disabled={loading}
                 >
+                  {loading && <Loader2 className='animate-spin'/>}
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>

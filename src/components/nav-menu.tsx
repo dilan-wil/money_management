@@ -15,7 +15,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
-
+import Link from "next/link";
 // Map string keys to icons
 const iconMap: Record<string, LucideIcon> = {
   CircleDollarSign,
@@ -44,35 +44,14 @@ export function NavMain({
         {items.map((item) => {
           const Icon = item.icon ? iconMap[item.icon] : null; // Dynamically resolve the icon
           return (
-            <Collapsible
-              key={item.title}
-              asChild
-              defaultOpen={item.isActive}
-              className="group/collapsible"
-            >
               <SidebarMenuItem>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={item.title}>
-                    {Icon && <Icon />} {/* Render the resolved icon if available */}
-                    <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <SidebarMenuSub>
-                    {item.items?.map((subItem) => (
-                      <SidebarMenuSubItem key={subItem.title}>
-                        <SidebarMenuSubButton asChild>
-                          <a href={subItem.url}>
-                            <span>{subItem.title}</span>
-                          </a>
-                        </SidebarMenuSubButton>
-                      </SidebarMenuSubItem>
-                    ))}
-                  </SidebarMenuSub>
-                </CollapsibleContent>
+                  <Link href={item.url}>
+                    <SidebarMenuButton tooltip={item.title}>
+                      {Icon && <Icon />} {/* Render the resolved icon if available */}
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </Link>
               </SidebarMenuItem>
-            </Collapsible>
           );
         })}
       </SidebarMenu>

@@ -7,54 +7,26 @@ import { ExpenseType } from "@/lib/definitions";
 import { CirclePlus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDialog } from "@/components/create-dialog";
-
-async function getData(): Promise<ExpenseType[]> {
-  // Fetch data from your API here.
-  return [
-      {
-        id: "728ed52f",
-        name: "first",
-        percentage: 5,
-        updatedAt: "YEAHH",
-        amount: 2000,
-      },
-      {
-        id: "58498498",
-        name: "second",
-        updatedAt: "YEAHH",
-        percentage: 10,
-        amount: 400,
-      },
-      {
-        id: "65465465",
-        name: "m.com",
-        updatedAt: "YEAHH",
-        percentage: 30,
-        amount: 100,
-      },
-      {
-        id: "546546545",
-        name: "m@example.com",
-        updatedAt: "YEAHH",
-        percentage: 20,
-        amount: 100,
-      },
-  ]
-}
+import { useAuth } from "@/components/context/auth-context";
+import { getASubCollection } from "@/functions/get-a-sub-collection";
 
 export default function Page() {
+  const { user } = useAuth()
   const [data, setData] = useState<ExpenseType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-
-    const fetchData = async() => {
-        const datas = await getData();
-        setData(datas)
+    if (!user) {
+      console.error("User is not authenticated");
+      return;
     }
 
-    fetchData();
-  }, [])
+    // Set up real-time listener
+    const unsubscribe = getASubCollection("users", user.uid, "expenses", setData);
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe();
+  }, [user]);
 
   return (
     <div className="container mx-auto py-2">
