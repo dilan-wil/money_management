@@ -28,7 +28,9 @@ export default function DashboardLayout({ children,} : {children: React.ReactNod
             </BreadcrumbList>
           </Breadcrumb>
         </header>
-        {children}
+        <div className="p-8">
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
