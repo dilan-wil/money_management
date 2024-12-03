@@ -17,9 +17,10 @@ import ProtectedRoute from "@/components/context/protected-route"
 import { useAuth } from "@/components/context/auth-context"
 import { NavUser } from "@/components/nav-user"
 import { Bell } from "lucide-react"
+import { getASubCollection } from "@/functions/get-a-sub-collection"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth()
+  const { user, setIncome } = useAuth()
   const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({
     name: "Anonymous",
     email: "No email",
@@ -28,6 +29,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const currentDate = new Date()
 
+  // This useEffect will fetch and set the income as soon as the user is authenticated
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+
+    // Set up real-time listener to fetch income data and update context
+    const unsubscribe = getASubCollection("users", user.uid, "incomes", setIncome)
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe()
+  }, [user, setIncome])
+
+  // This useEffect will set the user info when the user changes
   React.useEffect(() => {
     if (!user) {
       console.error("User is not authenticated")

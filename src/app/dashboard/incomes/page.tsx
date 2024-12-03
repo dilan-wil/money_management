@@ -7,26 +7,19 @@ import { IncomeType } from "@/lib/definitions";
 import { CirclePlus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDialog } from "@/components/create-dialog";
-import { getASubCollection } from "../../../functions/get-a-sub-collection";
 import { useAuth } from "@/components/context/auth-context";
 
 export default function Page() {
-  const { user } = useAuth();
+  const { income } = useAuth();
   const [data, setData] = useState<IncomeType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      console.error("User is not authenticated");
-      return;
+    if (income) {
+      console.log(income)
+      setData(income)
     }
-
-    // Set up real-time listener
-    const unsubscribe = getASubCollection("users", user.uid, "incomes", setData);
-
-    // Cleanup listener on component unmount
-    return () => unsubscribe && unsubscribe();
-  }, [user]);
+  }, [income]);
 
   return (
     <div className="container mx-auto py-2">
@@ -46,7 +39,7 @@ export default function Page() {
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Income : {data.reduce((sum, income) => sum + (income.amount || 0), 0)} XAF</div>
+      <div className="text-xl">Total Income : {data?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
       <DataTable columns={incomeColumns} data={data} />
     </div>
   );

@@ -144,6 +144,7 @@ const createColumns = <T extends IncomeType | ExpenseType>(type: 'Income' | 'Exp
         <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
+    
   },
   {
     accessorKey: type === 'Income' ? 'updatedAt' : 'percentage',
@@ -175,7 +176,7 @@ const createColumns = <T extends IncomeType | ExpenseType>(type: 'Income' | 'Exp
         currency: 'XAF',
       }).format(amount);
 
-      return <div className="text-right font-medium">{formatted}</div>;
+      return <div className="text-center font-medium">{formatted}</div>;
     },
   },
   {

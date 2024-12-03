@@ -1,5 +1,10 @@
+'use client'
 import { DoubleLineChart } from "@/components/double-line-chart"
 import { PieDonutChart } from "@/components/pie-donut-chart"
+import { useAuth } from "@/components/context/auth-context"
+import { IncomeType } from "@/lib/definitions";
+import { useState, useEffect } from "react";
+import { getASubCollection } from "@/functions/get-a-sub-collection";
 
 export default function Page() {
     return(
