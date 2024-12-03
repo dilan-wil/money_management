@@ -35,6 +35,12 @@ const data = {
       isActive: true,
     },
     {
+      title: "Overview",
+      url: "/dashboard",
+      icon: "Home",
+      isActive: true,
+    },
+    {
       title: "Expenses",
       url: "/dashboard/expenses",
       icon: "CirclePercent",

@@ -1,4 +1,4 @@
-import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, Settings2 } from "lucide-react";
+import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, Settings2, Home } from "lucide-react";
 
 import {
   Collapsible,
@@ -18,6 +18,7 @@ import {
 import Link from "next/link";
 // Map string keys to icons
 const iconMap: Record<string, LucideIcon> = {
+  Home,
   CircleDollarSign,
   CirclePercent,
   Settings2,
