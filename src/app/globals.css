@@ -41,6 +41,10 @@ body {
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    --color-chrome: #3498db; /* Example Chrome color */
+    --color-safari: #2ecc71; /* Example Safari color */
+    --color-firefox: #e74c3c; /* Example Firefox color */
+    --color-other: #9b59b6; /* Example Other color */
   }
   .dark {
     --background: 240 10% 3.9%;

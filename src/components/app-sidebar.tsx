@@ -29,15 +29,15 @@ const data = {
   },
   navMain: [
     {
-      title: "Incomes",
-      url: "/dashboard/incomes",
-      icon: "CircleDollarSign",
-      isActive: true,
-    },
-    {
       title: "Overview",
       url: "/dashboard",
       icon: "Home",
+      isActive: true,
+    },
+    {
+      title: "Incomes",
+      url: "/dashboard/incomes",
+      icon: "CircleDollarSign",
       isActive: true,
     },
     {
@@ -76,8 +76,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   }, [])
   return (
     <Sidebar {...props}>
-      <SidebarHeader className="h-16 border-b border-sidebar-border">
-        <NavUser user={userInfo} />
+      <SidebarHeader className="flex justify-center items-center h-16 border-b border-sidebar-border">
+        <p className="text-2xl font-bold">MYMONEY</p>
       </SidebarHeader>
       <SidebarContent>
         <DatePicker />

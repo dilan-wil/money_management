@@ -45,7 +45,7 @@ export function NavMain({
         {items.map((item) => {
           const Icon = item.icon ? iconMap[item.icon] : null; // Dynamically resolve the icon
           return (
-              <SidebarMenuItem>
+              <SidebarMenuItem className="text-2xl">
                   <Link href={item.url}>
                     <SidebarMenuButton tooltip={item.title}>
                       {Icon && <Icon />} {/* Render the resolved icon if available */}
