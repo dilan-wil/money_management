@@ -5,12 +5,14 @@ import { Button } from "./ui/button"
 import Link from "next/link"
 import google from "@/images/google.png"
 import { Separator } from "./ui/separator"
-import { login } from "../functions/login"
+import { login } from "@/functions/login"
 import Loader from "./loader"
 import { useRouter } from "next/navigation"
+import { useToast } from "@/hooks/use-toast"
 
 export function LoginCard() {
 
+    const {toast} = useToast();
     const router = useRouter()
 
     const [loading, setLoading] = useState(false)
@@ -60,21 +62,40 @@ export function LoginCard() {
     }, [formData, errors])
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        setLoading(true)
-        console.log(formData)
-        const loginSuccessful = await login(formData)
-        console.log(loginSuccessful)
-        if(loginSuccessful === true){
-            setLoading(false)
-            router.push('/dashboard')
-        }else {
-            setLoading(false)
-            console.log(loginSuccessful)
+        e.preventDefault();
+        setLoading(true);
+        
+        try {
+            const loginSuccessful = await login(formData);
+            console.log("Login Successful:", loginSuccessful);
+            
+            if (loginSuccessful) {
+                toast({
+                    variant: "success",
+                    title: "Login Successful.",
+                    description: "You will be redirected to your dashboard page.",
+                  })
+                router.push('/dashboard');
+            } else {
+                console.error("Login failed");
+                toast({
+                    variant: "destructive",
+                    title: "Wrong email or password.",
+                    description: "Please ensure to enter the correct email and password.",
+                  })
+            }
+        } catch (error) {
+            console.error("Error during login:", error);
+            toast({
+                variant: "destructive",
+                title: "Wrong email or password.",
+                description: "Please ensure to enter the correct email and password.",
+              })
+        } finally {
+            setLoading(false);
         }
-        setLoading(false)
-        // Perform the submit logic here
-    }
+    };
+    
 
     return (
         <div className="flex flex-col items-center justify-center gap-4">
@@ -116,7 +137,7 @@ export function LoginCard() {
                 <Button variant="outline" className="font-bold w-full">
                     <img style={{width: 20}} src={google.src} />  Google
                 </Button>
-                <p className="text-gray-600">Don't have an account ? <Link className="underline" href="/auth/login">Sign Up</Link></p>
+                <p className="text-gray-600">Don't have an account ? <Link className="underline" href="/auth/sign-up">Sign Up</Link></p>
             </form>
         </div>
     )
