@@ -53,15 +53,15 @@ export type FormState =
 
 export type IncomeType = {
   id: string
-  name?: string
+  source?: string
   updatedAt?: string
   amount?: number
 }
 
 export type ExpenseType = {
   id: string
-  name?: string
-  percentage?: number
-  updatedAt?: string
+  category?: string
+  description?: number
   amount?: number
+  updatedAt?: string
 }

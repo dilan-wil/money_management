@@ -47,7 +47,7 @@ const data = {
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/dashboard/settings",
       icon: "Settings2",
       items: [
         {
@@ -80,9 +80,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <p className="text-2xl font-bold">MYMONEY</p>
       </SidebarHeader>
       <SidebarContent>
-        <DatePicker />
         <SidebarSeparator className="mx-0" />
         <NavMain items={data.navMain} />
+        <DatePicker />
       </SidebarContent>
       {/* <SidebarFooter>
         <SidebarMenu>

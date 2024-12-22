@@ -48,29 +48,34 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
 
   const handleDelete = async () => {
     if (!user) {
-      console.error("User is not authenticated");
+      console.error('User is not authenticated');
       return false;
     }
     setLoading(true);
-    const deletedSuccessful = await deleteASubDocument("users", user.uid, `${type.toLowerCase()}s`, item.id);
+    const deletedSuccessful = await deleteASubDocument(
+      'users',
+      user.uid,
+      `${type.toLowerCase()}s`,
+      item.id
+    );
     setLoading(false);
 
     if (deletedSuccessful === true) {
       setIsAlertOpen(false);
       toast({
-        variant: "success",
-        title: "Successful.",
+        variant: 'success',
+        title: 'Successful.',
         description: `${type} ${item.id} has been deleted successfully.`,
-      })
+      });
     } else {
-      console.error("Error deleting document");
+      console.error('Error deleting document');
       toast({
-        variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem with your request.",
-      })
+        variant: 'destructive',
+        title: 'Uh oh! Something went wrong.',
+        description: 'There was a problem with your request.',
+      });
     }
-  }
+  };
 
   return (
     <div>
@@ -83,109 +88,153 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
-                Modify {type}
-              </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setIsDialogOpen(true)}>
+            Modify {type}
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-              style={{ color: 'red' }}
-              onClick={() => setIsAlertOpen(true)}
+            style={{ color: 'red' }}
+            onClick={() => setIsAlertOpen(true)}
           >
-              Delete {type}
+            Delete {type}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
+      <Dialog
+        open={isDialogOpen}
+        onOpenChange={() => setIsDialogOpen(!isDialogOpen)}
+      >
+        <DialogTrigger asChild></DialogTrigger>
+        <ModifyDialog
+          data={item}
+          table={type.toLowerCase() + 's'}
+          onClose={() => setIsDialogOpen(false)}
+        />
+      </Dialog>
 
-          <Dialog open={isDialogOpen} onOpenChange={() => setIsDialogOpen(!isDialogOpen)}>
-            <DialogTrigger asChild>
-                </DialogTrigger>
-            <ModifyDialog data={item} table='incomes' onClose={() => setIsDialogOpen(false)}/>
-          </Dialog>
-
-          <AlertDialog open={isAlertOpen} onOpenChange={() => setIsAlertOpen(!isAlertOpen)}>
-            <AlertDialogTrigger asChild>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  This action cannot be undone. This will permanently delete {item.name} ({item.id}) and remove the data from our servers.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-600"
-                  onClick={handleDelete}
-                  disabled={loading}
-                >
-                  {loading && <Loader2 className='animate-spin'/>}
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+      <AlertDialog
+        open={isAlertOpen}
+        onOpenChange={() => setIsAlertOpen(!isAlertOpen)}
+      >
+        <AlertDialogTrigger asChild></AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete{' '}
+              {type === 'Income' ? (item as IncomeType).source : (item as ExpenseType).category} (
+              {item.id}) and remove the data from our servers.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-red-600"
+              onClick={handleDelete}
+              disabled={loading}
+            >
+              {loading && <Loader2 className="animate-spin" />}
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
 
 type ColumnType = 'Income' | 'Expense';
 
-const createColumns = <T extends IncomeType | ExpenseType>(type: 'Income' | 'Expense'): ColumnDef<T>[] => [
-  {
-    accessorKey: 'name',
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    
-  },
-  {
-    accessorKey: type === 'Income' ? 'updatedAt' : 'percentage',
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        {type === 'Income' ? 'Updated At' : 'Percentage (%)'}
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: 'amount',
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-      >
-        Amount
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue('amount'));
-      const formatted = new Intl.NumberFormat('en-US', {
-        style: 'currency',
-        currency: 'XAF',
-      }).format(amount);
-
-      return <div className="text-center font-medium">{formatted}</div>;
+const createColumns = <T extends IncomeType | ExpenseType>(
+  type: ColumnType
+): ColumnDef<T>[] => {
+  const commonColumns: ColumnDef<T>[] = [
+    {
+      accessorKey: type === 'Income' ? 'source' : 'category',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          aria-label={`Sort by ${type === 'Income' ? 'Source' : 'Category'}`}
+        >
+          {type === 'Income' ? 'Source' : 'Category'}
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
     },
-  },
+    {
+      accessorKey: 'amount',
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+          aria-label="Sort by Amount"
+        >
+          Amount
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+      cell: ({ row }) => {
+        const amount = parseFloat(row.getValue('amount'));
+        const formatted = new Intl.NumberFormat('en-US', {
+          style: 'currency',
+          currency: 'XAF',
+        }).format(amount);
+
+        return <div className="font-medium">{formatted}</div>;
+      },
+    },
+  ];
+
+  const specificColumns: ColumnDef<T>[] =
+    type === 'Expense'
+      ? [
+          {
+            accessorKey: 'description',
+            header: 'Description',
+          },
+          {
+            accessorKey: 'date',
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                aria-label="Sort by Date"
+              >
+                Date
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+          },
+        ]
+      : [
+          {
+            accessorKey: 'updatedAt',
+            header: ({ column }) => (
+              <Button
+                variant="ghost"
+                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+                aria-label="Sort by Updated At"
+              >
+                Updated At
+                <ArrowUpDown className="ml-2 h-4 w-4" />
+              </Button>
+            ),
+          },
+        ];
+
+  return [...commonColumns, ...specificColumns, 
   {
     id: 'actions',
     cell: ({ row }) => <ActionMenu item={row.original} type={type} />,
-  },
-];
+  }];
+};
 
 // Exported Columns
-export const incomeColumns: ColumnDef<IncomeType>[] = createColumns<IncomeType>('Income');
-export const expensesColumns: ColumnDef<ExpenseType>[] = createColumns<ExpenseType>('Expense');
-
+export const incomeColumns: ColumnDef<IncomeType>[] = createColumns<IncomeType>(
+  'Income'
+);
+export const expensesColumns: ColumnDef<ExpenseType>[] = createColumns<ExpenseType>(
+  'Expense'
+);

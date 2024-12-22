@@ -8,16 +8,17 @@ import { CirclePlus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDialog } from "@/components/create-dialog";
 import { useAuth } from "@/components/context/auth-context";
+import { Card } from "@/components/ui/card";
 
 export default function Page() {
   const { income } = useAuth();
-  const [data, setData] = useState<IncomeType[]>([]);
+  const [incomes, setIncomes] = useState<IncomeType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
     if (income) {
       console.log(income)
-      setData(income)
+      setIncomes(income)
     }
   }, [income]);
 
@@ -33,14 +34,15 @@ export default function Page() {
             </Button>
           </DialogTrigger>
           <CreateDialog
-            data={["name", "amount"]}
+            data={["source", "amount"]}
             table="incomes"
             onClose={() => setDialogOpen(false)} // Close dialog after submission
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Income : {data?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
-      <DataTable columns={incomeColumns} data={data} />
+      <div className="text-xl">Total Income : {incomes?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
+
+      <DataTable columns={incomeColumns} data={incomes} />
     </div>
   );
 }

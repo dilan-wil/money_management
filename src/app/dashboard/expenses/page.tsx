@@ -12,7 +12,7 @@ import { getASubCollection } from "@/functions/get-a-sub-collection";
 
 export default function Page() {
   const { user } = useAuth()
-  const [data, setData] = useState<ExpenseType[]>([]);
+  const [expenses, setExpenses] = useState<ExpenseType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ export default function Page() {
     }
 
     // Set up real-time listener
-    const unsubscribe = getASubCollection("users", user.uid, "expenses", setData);
+    const unsubscribe = getASubCollection("users", user.uid, "expenses", setExpenses);
 
     // Cleanup listener on component unmount
     return () => unsubscribe && unsubscribe();
@@ -40,14 +40,14 @@ export default function Page() {
             </Button>
           </DialogTrigger>
           <CreateDialog
-            data={["name", "percentage"]}
+            data={["category", "description", "amount"]}
             table="expenses"
             onClose={() => setDialogOpen(false)} // Close dialog after submission
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Expense per month : 200000 XAF</div>
-      <DataTable columns={expensesColumns} data={data} />
+      <div className="text-xl">Total Expense per month : {expenses?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
+      <DataTable columns={expensesColumns} data={expenses} />
     </div>
   );
 }

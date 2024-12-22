@@ -2,36 +2,40 @@
 import { DoubleLineChart } from "@/components/double-line-chart"
 import { PieDonutChart } from "@/components/pie-donut-chart"
 import { useAuth } from "@/components/context/auth-context"
-import { IncomeType } from "@/lib/definitions";
 import { useState, useEffect } from "react";
 import { getASubCollection } from "@/functions/get-a-sub-collection";
+import { getCategories, Category } from '@/functions/testBudget'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useToast } from "@/hooks/use-toast";
+import CategorySummaryCard from "@/components/category-summary-card";
 
 export default function Page() {
-    return(
+    const [categories, setCategories] = useState<Category[]>([])
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+            const fetchedCategories = await getCategories()
+            const categoriesWithAmounts = fetchedCategories.map(cat => ({
+                ...cat,
+                currentAmount: Math.random() * 1000,
+                totalAmount: 1000
+            }))
+            setCategories(categoriesWithAmounts)
+        }
+        fetchCategories()
+    }, [])
+
+    return (
         <div>
-            <div className="grid rounded-lg grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 mb-4 bg-gray-100">
+            <div className="container mx-auto pb-8">
                 {/* Today's Allowed Expense */}
-                <div className="bg-cyan-500 text-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">Today's Allowed Expense</h2>
-                    <p className="text-3xl font-bold">XAF 2000</p>
-                </div>
-
-                {/* Today's Amount to Spend Left */}
-                <div className="bg-cyan-500 text-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">Today's Amount Left</h2>
-                    <p className="text-3xl font-bold">XAF 500</p>
-                </div>
-
-                {/* Monthly Revenue */}
-                <div className="bg-cyan-500 text-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">Monthly Revenue</h2>
-                    <p className="text-3xl font-bold">XAF 150,000</p>
-                </div>
-
-                {/* Monthly Savings */}
-                <div className="bg-cyan-500 text-white p-6 rounded-lg shadow-md">
-                    <h2 className="text-xl font-semibold">Monthly Savings</h2>
-                    <p className="text-3xl font-bold">XAF 50,000</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {categories.map((category) => (
+                        <CategorySummaryCard category={category}/>
+                    ))}
                 </div>
             </div>
 

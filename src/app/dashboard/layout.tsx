@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex h-16 shrink-0 items-center gap-2">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              <Breadcrumb>
+              {/* <Breadcrumb>
                 <BreadcrumbList>
                   <BreadcrumbItem>
                     <BreadcrumbPage>
@@ -73,14 +73,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </BreadcrumbPage>
                   </BreadcrumbItem>
                 </BreadcrumbList>
-              </Breadcrumb>
+              </Breadcrumb> */}
             </div>
             <div className="flex items-center gap-2">
-              <Bell className="cursor-pointer" size={29} />
+              <Bell className="cursor-pointer" size={20} />
               <NavUser user={userInfo} />
             </div>
           </header>
-          <div className="p-8">
+          <div className="p-8 overflow-x-hidden">
             {children}
           </div>
         </SidebarInset>
