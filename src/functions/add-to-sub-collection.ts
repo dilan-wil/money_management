@@ -8,7 +8,7 @@ interface AddData {
     percentage?: number
 }
 
-export async function addIncomeExpense(addData: AddData, userId: string, table: string) {
+export async function addToSubCollection(addData: AddData, userId: string, table: string) {
     try {
         console.log(userId)
         // Reference the Firestore collection

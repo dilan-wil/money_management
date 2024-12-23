@@ -11,7 +11,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { addIncomeExpense } from "@/functions/add-income-expense";
+import { addToSubCollection } from "@/functions/add-to-sub-collection";
 import { useAuth } from "./context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
@@ -63,7 +63,7 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
         return false;
       }
       setLoading(true);
-      const addedSuccessful = await addIncomeExpense(formData, user.uid, table);
+      const addedSuccessful = await addToSubCollection(formData, user.uid, table);
       setLoading(false);
 
       if (addedSuccessful === true) {
