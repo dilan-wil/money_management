@@ -41,16 +41,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   // get the userdata
   React.useEffect(() => {
     if (!user) {
-      console.error("User is not authenticated")
-      return
+      console.error("User is not authenticated");
+      return;
     }
-    const unsubscribe = getADocument(user.uid, "users", setUserInfos)
-
+  
+    // Get document and set the state
+    const unsubscribe = getADocument(user.uid, "users", setUserInfos);
+  
     // Cleanup listener on component unmount
-    console.log(userInfos)
-    return () => unsubscribe && unsubscribe()
-    // Set up real-time listener to fetch income data and update context
-  }, [user, setUserInfos])
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [user, setUserInfos]); // Only rerun if 'user' or 'setUserInfos' changes
+  
   React.useEffect(() => {
     if (!user) {
       console.error("User is not authenticated")

@@ -29,7 +29,6 @@ export const getADocument = (
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         // Document data has changed
-        console.log(docSnap.data())
         onDataUpdate({ id: id, ...docSnap.data() });
       } else {
         // Document no longer exists
