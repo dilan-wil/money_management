@@ -1,5 +1,5 @@
 import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, Settings2, Home } from "lucide-react";
-
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   Collapsible,
   CollapsibleContent,
@@ -38,6 +38,9 @@ export function NavMain({
     }[];
   }[];
 }) {
+
+  const { setOpenMobile } = useSidebar()
+
   return (
     <SidebarGroup>
       <SidebarGroupLabel>MENU</SidebarGroupLabel>
@@ -46,7 +49,7 @@ export function NavMain({
           const Icon = item.icon ? iconMap[item.icon] : null; // Dynamically resolve the icon
           return (
               <SidebarMenuItem className="text-2xl">
-                  <Link href={item.url}>
+                  <Link href={item.url} onClick={() => setOpenMobile(false)}>
                     <SidebarMenuButton tooltip={item.title}>
                       {Icon && <Icon />} {/* Render the resolved icon if available */}
                       <span>{item.title}</span>

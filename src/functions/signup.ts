@@ -27,6 +27,7 @@ export async function signup(formData: FormData) {
       firstName,
       lastName,
       createdAt: serverTimestamp(),
+      budgetPeriod: "monthly",
     });
 
     console.log("User signed up and data saved to Firestore.");

@@ -1,11 +1,5 @@
 'use client'
 import { AppSidebar } from "@/components/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbList,
-  BreadcrumbPage,
-} from "@/components/ui/breadcrumb"
 import * as React from "react"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -18,9 +12,10 @@ import { useAuth } from "@/components/context/auth-context"
 import { NavUser } from "@/components/nav-user"
 import { Bell } from "lucide-react"
 import { getASubCollection } from "@/functions/get-a-sub-collection"
+import { getADocument } from "@/functions/get-a-document"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, setIncome } = useAuth()
+  const { user, setIncome, setCategories, userInfos, setUserInfos } = useAuth()
   const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({
     name: "Anonymous",
     email: "No email",
@@ -42,6 +37,32 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Cleanup listener on component unmount
     return () => unsubscribe && unsubscribe()
   }, [user, setIncome])
+
+  // get the userdata
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+    const unsubscribe = getADocument(user.uid, "users", setUserInfos)
+
+    // Cleanup listener on component unmount
+    console.log(userInfos)
+    return () => unsubscribe && unsubscribe()
+    // Set up real-time listener to fetch income data and update context
+  }, [user, setUserInfos])
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+
+    // Set up real-time listener to fetch income data and update context
+    const unsubscribe = getASubCollection("users", user.uid, "categories", setCategories)
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe()
+  }, [user, setCategories])
 
   // This useEffect will set the user info when the user changes
   React.useEffect(() => {

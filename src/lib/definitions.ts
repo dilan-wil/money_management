@@ -65,3 +65,13 @@ export type ExpenseType = {
   amount?: number
   updatedAt?: string
 }
+
+export type Category = {
+  id: string
+  name: string
+  percentage: number
+  isParent: boolean
+  parent: string
+  currentAmount: number
+  totalAmount?: number
+}

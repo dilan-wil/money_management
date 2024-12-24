@@ -190,41 +190,41 @@ const createColumns = <T extends IncomeType | ExpenseType>(
   const specificColumns: ColumnDef<T>[] =
     type === 'Expense'
       ? [
-          {
-            accessorKey: 'description',
-            header: 'Description',
-          },
-          {
-            accessorKey: 'date',
-            header: ({ column }) => (
-              <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                aria-label="Sort by Date"
-              >
-                Date
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            ),
-          },
-        ]
+        {
+          accessorKey: 'description',
+          header: 'Description',
+        },
+        {
+          accessorKey: 'date',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              aria-label="Sort by Date"
+            >
+              Date
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          ),
+        },
+      ]
       : [
-          {
-            accessorKey: 'updatedAt',
-            header: ({ column }) => (
-              <Button
-                variant="ghost"
-                onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
-                aria-label="Sort by Updated At"
-              >
-                Updated At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-              </Button>
-            ),
-          },
-        ];
+        {
+          accessorKey: 'updatedAt',
+          header: ({ column }) => (
+            <Button
+              variant="ghost"
+              onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+              aria-label="Sort by Updated At"
+            >
+              Updated At
+              <ArrowUpDown className="ml-2 h-4 w-4" />
+            </Button>
+          ),
+        },
+      ];
 
-  return [...commonColumns, ...specificColumns, 
+  return [...commonColumns, ...specificColumns,
   {
     id: 'actions',
     cell: ({ row }) => <ActionMenu item={row.original} type={type} />,

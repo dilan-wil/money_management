@@ -66,7 +66,7 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
       const addedSuccessful = await addToSubCollection(formData, user.uid, table);
       setLoading(false);
 
-      if (addedSuccessful === true) {
+      if (addedSuccessful !== null) {
         onClose(); // Close the dialog
         toast({
           variant: "success",

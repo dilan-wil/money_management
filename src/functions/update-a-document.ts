@@ -1,7 +1,7 @@
 import { updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { db } from './firebase';
 
-export const updateASubDocument = async (collection: string, docId: string, updatedValues: any) => {
+export const updateADocument = async (collection: string, docId: string, updatedValues: any) => {
   try{
     const userDocRef = doc(db, collection, docId);
     await updateDoc(userDocRef, {

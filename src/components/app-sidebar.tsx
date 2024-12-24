@@ -6,7 +6,6 @@ import {
 } from "lucide-react"
 import { NavMain } from "./nav-menu"
 import { DatePicker } from "@/components/date-picker"
-import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
   SidebarContent,
@@ -65,6 +64,7 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
+  const [sidebarOpen, setSidebarOpen] = React.useState(true); // Track the sidebar state
   const [userInfo, setUserInfo] = React.useState<{name: string, email: string, avatar: string}>({name: "", email: "", avatar: ""})
   React.useEffect(() => {
     if (!user) {
@@ -74,8 +74,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     setUserInfo({name: user.displayName || "Anonymous", email: user.email || "No email", avatar: user.photoURL || "No avatar"})
     
   }, [])
+  const closeSidebar = () => setSidebarOpen(false); // Function to close sidebar
+
   return (
-    <Sidebar {...props}>
+    <Sidebar {...props} > 
       <SidebarHeader className="flex justify-center items-center h-16 border-b border-sidebar-border">
         <p className="text-2xl font-bold">MYMONEY</p>
       </SidebarHeader>

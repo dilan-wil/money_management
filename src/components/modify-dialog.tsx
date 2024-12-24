@@ -81,10 +81,10 @@ export function ModifyDialog({data, table, onClose,}: {data: DataType; table: st
         toast({
           variant: "success",
           title: "Successful.",
-          description: `${table} ${data.name} has been updated.`,
+          description: `${table} ${table === "incomes" ? (data as IncomeType).source : (data as ExpenseType).category} has been updated.`,
         })
       } else {
-        console.error("Error adding income/expense");
+        console.error("Error updating income/expense");
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
