@@ -1,3 +1,4 @@
+import { Timestamp } from 'firebase/firestore'
 import { z } from 'zod'
  
 export const SignupFormSchema = z.object({
@@ -61,9 +62,11 @@ export type IncomeType = {
 export type ExpenseType = {
   id: string
   category?: string
-  description?: number
+  categoryId?: string
+  description?: string
   amount?: number
   updatedAt?: string
+  createdAt?: any
 }
 
 export type Category = {

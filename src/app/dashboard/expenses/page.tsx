@@ -11,23 +11,15 @@ import { useAuth } from "@/components/context/auth-context";
 import { getASubCollection } from "@/functions/get-a-sub-collection";
 
 export default function Page() {
-  const { user } = useAuth()
-  const [expenses, setExpenses] = useState<ExpenseType[]>([]);
+  const { user, expenses} = useAuth()
+  const [expenseArray, setExpenseArray] = useState<ExpenseType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
-    if (!user) {
-      console.error("User is not authenticated");
-      return;
+    if (expenses) {
+      setExpenseArray(expenses)
     }
-
-    // Set up real-time listener
-    const unsubscribe = getASubCollection("users", user.uid, "expenses", setExpenses);
-
-    // Cleanup listener on component unmount
-    return () => unsubscribe && unsubscribe();
-  }, [user]);
-
+  }, [expenses]);
   return (
     <div className="container mx-auto py-2">
       <div className="flex justify-between w-full pb-7">
@@ -46,8 +38,8 @@ export default function Page() {
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Expense per month : {expenses?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
-      <DataTable columns={expensesColumns} data={expenses} />
+      <div className="text-xl">Total Expense per month : {expenseArray?.reduce((sum, expense) => sum + Number(expense.amount || 0), 0)} XAF</div>
+      <DataTable columns={expensesColumns} data={expenseArray} />
     </div>
   );
 }

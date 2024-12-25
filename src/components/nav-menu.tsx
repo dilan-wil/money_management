@@ -43,8 +43,8 @@ export function NavMain({
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>MENU</SidebarGroupLabel>
-      <SidebarMenu>
+      <SidebarGroupLabel className="text-gray-300">MENU</SidebarGroupLabel>
+      <SidebarMenu className="text-gray-300">
         {items.map((item) => {
           const Icon = item.icon ? iconMap[item.icon] : null; // Dynamically resolve the icon
           return (

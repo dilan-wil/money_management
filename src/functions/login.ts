@@ -7,14 +7,12 @@ interface FormData {
 }
 
 export async function login(formData: FormData) {
-    console.log(formData)
     const {email, password} = formData
     if (!email || !password) {
       throw new Error("Email and password must be provided.");
     }
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      console.log("logged in")
       return true
       // Navigate to the home page
     } catch (error: any) {

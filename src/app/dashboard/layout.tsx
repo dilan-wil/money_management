@@ -15,14 +15,27 @@ import { getASubCollection } from "@/functions/get-a-sub-collection"
 import { getADocument } from "@/functions/get-a-document"
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, setIncome, setCategories, userInfos, setUserInfos } = useAuth()
+  const { user, income, setIncome, setCategories, setUserInfos, setExpenses } = useAuth()
   const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({
     name: "Anonymous",
     email: "No email",
     avatar: "default_avatar.png", // Default avatar
   })
 
-  const currentDate = new Date()
+
+  // This useEffect will fetch and set the expenses as soon as the user is authenticated
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+
+    // Set up real-time listener to fetch income data and update context
+    const unsubscribe = getASubCollection("users", user.uid, "expenses", setExpenses)
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe()
+  }, [user, setExpenses])
 
   // This useEffect will fetch and set the income as soon as the user is authenticated
   React.useEffect(() => {
@@ -37,6 +50,21 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     // Cleanup listener on component unmount
     return () => unsubscribe && unsubscribe()
   }, [user, setIncome])
+
+  // get the categories
+  React.useEffect(() => {
+    if (!user) {
+      console.error("User is not authenticated")
+      return
+    }
+
+    // Set up real-time listener to fetch income data and update context
+    const unsubscribe = getASubCollection("users", user.uid, "categories", setCategories, income?.reduce((sum: number, income: any) => sum + Number(income.amount || 0), 0))
+
+    // Cleanup listener on component unmount
+    return () => unsubscribe && unsubscribe()
+  }, [user, setCategories, income, setIncome])
+
 
   // get the userdata
   React.useEffect(() => {
@@ -53,19 +81,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       if (unsubscribe) unsubscribe();
     };
   }, [user, setUserInfos]); // Only rerun if 'user' or 'setUserInfos' changes
-  
-  React.useEffect(() => {
-    if (!user) {
-      console.error("User is not authenticated")
-      return
-    }
 
-    // Set up real-time listener to fetch income data and update context
-    const unsubscribe = getASubCollection("users", user.uid, "categories", setCategories)
-
-    // Cleanup listener on component unmount
-    return () => unsubscribe && unsubscribe()
-  }, [user, setCategories])
 
   // This useEffect will set the user info when the user changes
   React.useEffect(() => {

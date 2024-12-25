@@ -3,7 +3,7 @@
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { auth } from "@/functions/firebase";
-import { Category, IncomeType } from "@/lib/definitions";
+import { Category, ExpenseType, IncomeType } from "@/lib/definitions";
 
 interface AuthContextType {
   user: User | null;
@@ -14,6 +14,8 @@ interface AuthContextType {
   setUserInfos: (userInfos: any) => void;
   categories: any;
   setCategories: (categories: any) => void;
+  expenses: any;
+  setExpenses: (categories: any) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -22,6 +24,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [income, setIncome] = useState<IncomeType | null>(null);  // Initialize totalIncome
+  const [expenses, setExpenses] = useState<ExpenseType | null>(null);  // Initialize totalIncome
   const [categories, setCategories] = useState<Category | null>(null);  // Initialize totalIncome
   const [userInfos, setUserInfos] = useState<any>(null)
 
@@ -34,7 +37,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, income, setIncome, userInfos, setUserInfos, categories, setCategories }}>
+    <AuthContext.Provider value={{ user, loading, income, setIncome, expenses, setExpenses, userInfos, setUserInfos, categories, setCategories }}>
       {children}
     </AuthContext.Provider>
   );

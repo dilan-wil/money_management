@@ -195,7 +195,7 @@ const createColumns = <T extends IncomeType | ExpenseType>(
           header: 'Description',
         },
         {
-          accessorKey: 'date',
+          accessorKey: 'updatedAt',
           header: ({ column }) => (
             <Button
               variant="ghost"

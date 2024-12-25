@@ -67,7 +67,7 @@ export function LoginCard() {
         
         try {
             const loginSuccessful = await login(formData);
-            console.log("Login Successful:", loginSuccessful);
+
             
             if (loginSuccessful) {
                 toast({

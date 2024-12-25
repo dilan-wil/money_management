@@ -65,7 +65,7 @@ export function ModifyDialog({data, table, onClose,}: {data: DataType; table: st
     setErrors(newErrors);
 
     if (Object.values(newErrors).every((error) => !error)) {
-      console.log("Form submitted successfully:", formData);
+
       // Perform your submit logic here.
 
       if (!user) {

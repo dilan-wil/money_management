@@ -15,11 +15,14 @@ import { addToSubCollection } from "@/functions/add-to-sub-collection";
 import { useAuth } from "./context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
-export function CreateDialog({data, table, onClose,}: {data: string[]; table: string; onClose: () => void;}) {
-  const { user } = useAuth();
+
+export function CreateDialog({ data, table, onClose, }: { data: string[]; table: string; onClose: () => void; }) {
+  const { user, categories, userInfos } = useAuth();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const divisor = userInfos.budgetPeriod === "weekly" ? 4 : userInfos.budgetPeriod === "daily" ? 30 : 1;
 
   const [formData, setFormData] = useState(
     Object.fromEntries(data.map((field) => [field, ""]))
@@ -45,6 +48,7 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const newErrors = Object.fromEntries(
       Object.entries(formData).map(([key, value]) => [
         key,
@@ -57,11 +61,36 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
     setErrors(newErrors);
 
     if (Object.values(newErrors).every((error) => !error)) {
-      console.log(formData)
       if (!user) {
         console.error("User is not authenticated");
         return false;
       }
+
+      const selectedCategory = categories.find(
+        (category: any) => category.name === formData.category
+      );
+      if (!selectedCategory) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Invalid category selected.",
+        });
+        return;
+      }
+
+      // Calculate current amount
+      const currentAmount = selectedCategory.currentAmount || 0; // Assume currentAmount is tracked in categories
+      const newExpenseAmount = parseFloat(formData.amount) || 0;
+
+      if (currentAmount + newExpenseAmount > (selectedCategory.totalAmount/divisor)) {
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: `Adding this expense will exceed the total allowed amount for the ${selectedCategory.name} category.`,
+        });
+        return;
+      }
+
       setLoading(true);
       const addedSuccessful = await addToSubCollection(formData, user.uid, table);
       setLoading(false);
@@ -72,17 +101,18 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
           variant: "success",
           title: "Successful.",
           description: `Your new ${table} has been added.`,
-        })
+        });
       } else {
         console.error("Error adding income/expense");
         toast({
           variant: "destructive",
           title: "Uh oh! Something went wrong.",
           description: "There was a problem with your request.",
-        })
+        });
       }
     }
   };
+
 
   return (
     <DialogContent className="sm:max-w-[425px]">
@@ -99,17 +129,44 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
               <Label className="block text-sm font-medium text-gray-700">
                 {name}:
               </Label>
-              <Input
-                type={
-                  name.toLowerCase() === "amount" || name.toLowerCase() === "percentage"
-                    ? "number"
-                    : "text"
-                }
-                name={name}
-                placeholder={`Enter ${name}`}
-                onChange={handleChange}
-                readOnly={loading}
-              />
+              {name.toLowerCase() === "category" ? (
+
+                <Select
+                  onValueChange={(value) => {
+                    const selectedCategory = categories.find((category: any) => category.id === value); // Find the full category object
+                    setFormData((prev) => ({
+                      ...prev,
+                      [name]: selectedCategory?.name, // Store only the category name
+                      categoryId: selectedCategory?.id, // Optionally store the category ID
+                    }));
+                    return
+                  }}                >
+                  <SelectTrigger className="col-span-3">
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories
+                      .filter((category: any) => category.isParent === false) // Filter categories
+                      .map((category: any) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  type={
+                    name.toLowerCase() === "amount" || name.toLowerCase() === "percentage"
+                      ? "number"
+                      : "text"
+                  }
+                  name={name}
+                  placeholder={`Enter ${name}`}
+                  onChange={handleChange}
+                  readOnly={loading}
+                />
+              )}
             </div>
           ))}
         </div>
@@ -118,7 +175,7 @@ export function CreateDialog({data, table, onClose,}: {data: string[]; table: st
             <Button variant="outline">Cancel</Button>
           </DialogTrigger>
           <Button type="submit" className="bg-green-600" disabled={loading}>
-            {loading && <Loader2 className="animate-spin"/>}Add new
+            {loading && <Loader2 className="animate-spin" />}Add new
           </Button>
         </DialogFooter>
       </form>

@@ -25,10 +25,9 @@ import { Category } from '@/lib/definitions'
 import { useAuth } from "@/components/context/auth-context";
 
 
-const TOTAL_INCOME = 50000
 
 export default function SettingsPage() {
-  const { user, categories, setCategories, userInfos, setUserInfos } = useAuth()
+  const { user, categories, setCategories, userInfos, setUserInfos, income } = useAuth()
   const [budgetPeriod, setBudgetPeriod] = useState('monthly')
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set<string>())
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -36,18 +35,20 @@ export default function SettingsPage() {
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryValue, setNewCategoryValue] = useState('')
   const [newCategoryType, setNewCategoryType] = useState<'percentage' | 'amount'>('percentage')
-  const [currentParentId, setCurrentParentId] = useState<string | null>(null)
+  const [currentParentId, setCurrentParentId] = useState<string>("")
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
   const [showAmounts, setShowAmounts] = useState(false)
   const { toast } = useToast()
 
+  const totalIncome = income?.reduce((sum: number, income: any) => sum + Number(income.amount || 0), 0)
+
   const handleBudgetPeriodChange = async (value: string) => {
     console.log(value)
-    if(!user){
+    if (!user) {
       return
     }
     try {
-      await updateADocument("users", user.uid, {budgetPeriod: value})
+      await updateADocument("users", user.uid, { budgetPeriod: value })
       toast({
         title: "Updated",
         description: "Budget Period updated successfully.",
@@ -62,7 +63,7 @@ export default function SettingsPage() {
     }
   }
 
-  const handleAddCategory = (parentId: string | null) => {
+  const handleAddCategory = (parentId: string) => {
     setCurrentParentId(parentId)
     setEditingCategory(null)
     setNewCategoryName('')
@@ -92,20 +93,20 @@ export default function SettingsPage() {
       const parentCategory = currentParentId === 'none'
         ? null
         : categories.find((category: any) => category.id === currentParentId);
-        console.log(editingCategory)
+      console.log(editingCategory)
 
       if (currentParentId !== 'none' && !parentCategory) {
         throw new Error("Parent category not found");
       }
 
-      const parentTotalAmount = parentCategory?.totalAmount || TOTAL_INCOME;
+      const parentTotalAmount = parentCategory?.totalAmount || totalIncome;
 
       console.log(editingCategory)
       const percentageValue =
         newCategoryType === 'amount'
           ? (value / parentTotalAmount) * 100
           : value;
-          console.log(editingCategory)
+      console.log(editingCategory)
 
       // Validate total percentage does not exceed 100%
       const totalPercentage = categories.reduce(
@@ -131,7 +132,7 @@ export default function SettingsPage() {
         }
         const updatedSuccessful = await updateASubDocument("users", user.uid, "categories", editingCategory.id, updatedCategory)
         console.log(updatedSuccessful)
-        if(updatedSuccessful){
+        if (updatedSuccessful) {
           setCategories((prevCategories: any) =>
             prevCategories.map((category: any) =>
               category.id === editingCategory.id
@@ -141,6 +142,7 @@ export default function SettingsPage() {
           );
 
           toast({
+            variant: "success",
             title: "Category updated",
             description: "Your category has been successfully updated.",
           })
@@ -152,10 +154,13 @@ export default function SettingsPage() {
         const newCategory: Omit<Category, 'id'> = {
           name: newCategoryName,
           percentage: percentageValue,
-          isParent: currentParentId === 'none',
+          isParent: false,
           parent: currentParentId || 'none',
           currentAmount: 0,
           totalAmount: (percentageValue / 100) * parentTotalAmount,
+        }
+        if (currentParentId !== 'none') {
+          await updateASubDocument("users", user.uid, "categories", currentParentId, { isParent: true })
         }
         const addedCategory = await addToSubCollection(newCategory, user.uid, "categories")
 
@@ -172,6 +177,7 @@ export default function SettingsPage() {
         ]);
         //show alert 
         toast({
+          variant: "success",
           title: "Category added",
           description: "Your new category has been successfully added.",
         })
@@ -182,11 +188,19 @@ export default function SettingsPage() {
       setNewCategoryValue('')
       setEditingCategory(null)
     } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to save category. Please try again.",
-        variant: "destructive",
-      })
+      if(error = "Total percentage cannot exceed 100%"){
+        toast({
+          title: "Incorrect percentage",
+          description: "Total percentage cannot exceed 100%.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to save category. Please try again.",
+          variant: "destructive",
+        })
+      }
     } finally {
       setLoading(false)
     }
@@ -209,6 +223,7 @@ export default function SettingsPage() {
         );
 
         toast({
+          variant: "success",
           title: "Category deleted",
           description: "The category has been successfully deleted.",
         })
@@ -252,7 +267,7 @@ export default function SettingsPage() {
     }
 
     const parentPercentage = getParentPercentage(category)
-    return (category.percentage / 100) * (parentPercentage / 100) * TOTAL_INCOME
+    return (category.percentage / 100) * (parentPercentage / 100) * totalIncome
   }
 
   const renderCategories = (parent: string, level: number = 0) => {
@@ -280,7 +295,7 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between w-full sm:w-auto gap-3">
               <span className="text-sm text-gray-600">
                 {showAmounts
-                  ? `$${calculateDisplayAmount(category).toFixed(2)}`
+                  ? `XAF${calculateDisplayAmount(category).toFixed(2)}`
                   : `${category.percentage.toFixed(2)}%`
                 }
               </span>

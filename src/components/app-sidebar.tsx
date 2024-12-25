@@ -78,10 +78,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar {...props} > 
-      <SidebarHeader className="flex justify-center items-center h-16 border-b border-sidebar-border">
+      <SidebarHeader style={{ backgroundImage: 'url(/chalk.webp)'}} className="flex justify-center items-center h-16 border-b border-sidebar-border text-gray-400">
         <p className="text-2xl font-bold">MYMONEY</p>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent style={{ backgroundImage: 'url(/chalk.webp)'}} className="text-gray-300">
         <SidebarSeparator className="mx-0" />
         <NavMain items={data.navMain} />
         <DatePicker />

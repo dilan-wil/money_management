@@ -78,9 +78,9 @@ export function SignUpCard() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         setLoading(true)
-        console.log(formData)
+
         const signUp = await signup(formData)
-        console.log(signUp)
+
         if(signUp === true){
             setLoading(false)
             router.push('/dashboard')

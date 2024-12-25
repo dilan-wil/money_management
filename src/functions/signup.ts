@@ -29,8 +29,7 @@ export async function signup(formData: FormData) {
       createdAt: serverTimestamp(),
       budgetPeriod: "monthly",
     });
-
-    console.log("User signed up and data saved to Firestore.");
+    
     return true;
   } catch (error: any) {
     console.error("Signup error:", error.message);
