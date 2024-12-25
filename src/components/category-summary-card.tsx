@@ -57,7 +57,7 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
     const handleSaveExpense = async () => {
         setLoading(true);
         if (!user) return;
-    
+
         // Check if the expense will exceed the budget
         const newCurrentAmount = currentAmount + (amount === null ? 0 : amount);
         if (newCurrentAmount > category.totalAmount / divisor) {
@@ -69,14 +69,14 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
             setLoading(false);
             return; // Prevent further processing
         }
-    
+
         const newExpense: Omit<ExpenseType, 'id'> = {
             category: category.name,
             categoryId: category.id,
             amount: amount === null ? 0 : amount,
             description: description,
         };
-    
+
         try {
             await addToSubCollection(newExpense, user?.uid, "expenses");
             toast({
@@ -96,7 +96,7 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
             setIsDialogOpen(false);
         }
     };
-    
+
 
     return (
         <div>
@@ -109,7 +109,10 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
                         <Progress className={`${progressValue > 75 ? '[&>*]:bg-red-600' : '[&>*]:bg-blue-600'}`} value={progressValue} />
                     </div>
                     <p className="text-sm text-gray-500 mb-2">
-                        ${(currentAmount)} / ${(category.totalAmount / divisor).toFixed(2)}
+                        {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$" : userInfos.currency === "EUR" ? "€" : "XAF"}
+                        {(currentAmount)} /
+                        {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$" : userInfos.currency === "EUR" ? "€" : "XAF"}
+                        {(category.totalAmount / divisor).toFixed(2)}
                     </p>
                     <Button onClick={() => setIsDialogOpen(true)} className="w-full bg-green-600">
                         <PlusIcon className="w-4 h-4 mr-2" />

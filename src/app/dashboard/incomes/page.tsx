@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from "react";
-import { incomeColumns } from "@/components/columns";
+import { IncomeColumns } from "@/components/columns";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { IncomeType } from "@/lib/definitions";
@@ -11,10 +11,10 @@ import { useAuth } from "@/components/context/auth-context";
 import { Card } from "@/components/ui/card";
 
 export default function Page() {
-  const { income } = useAuth();
+  const { income, userInfos } = useAuth();
   const [incomes, setIncomes] = useState<IncomeType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-
+  // const test = Incom
   useEffect(() => {
     if (income) {
       console.log(income)
@@ -42,7 +42,7 @@ export default function Page() {
       </div>
       <div className="text-xl">Total Income : {incomes?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
 
-      <DataTable columns={incomeColumns} data={incomes} />
+      <DataTable columns={IncomeColumns()} data={incomes} />
     </div>
   );
 }

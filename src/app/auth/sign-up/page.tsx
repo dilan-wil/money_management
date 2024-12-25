@@ -6,12 +6,12 @@ import "./signup.css"
 export default function Page() {
     console.log(background)
     return(
-        <div style={{height: "100vh"}} className="flex w-full">
-            <div style={{height: "100vh"}} className="w-1/2 hidden lg:block">
+        <div style={{height: "110vh"}} className="flex w-full">
+            <div style={{height: "110vh"}} className="w-1/2 hidden lg:block">
                 <Image
                     src={background}
                     alt="Background"
-                    style={{ objectFit: "cover", height: "100vh" }}
+                    style={{ objectFit: "cover", height: "110vh" }}
                     priority
                 />
             </div>            

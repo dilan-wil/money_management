@@ -147,7 +147,8 @@ const ActionMenu = <T extends IncomeType | ExpenseType>({
 type ColumnType = 'Income' | 'Expense';
 
 const createColumns = <T extends IncomeType | ExpenseType>(
-  type: ColumnType
+  type: ColumnType,
+  currency: string
 ): ColumnDef<T>[] => {
   const commonColumns: ColumnDef<T>[] = [
     {
@@ -179,7 +180,7 @@ const createColumns = <T extends IncomeType | ExpenseType>(
         const amount = parseFloat(row.getValue('amount'));
         const formatted = new Intl.NumberFormat('en-US', {
           style: 'currency',
-          currency: 'XAF',
+          currency: currency || "XAF",
         }).format(amount);
 
         return <div className="font-medium">{formatted}</div>;
@@ -232,9 +233,13 @@ const createColumns = <T extends IncomeType | ExpenseType>(
 };
 
 // Exported Columns
-export const incomeColumns: ColumnDef<IncomeType>[] = createColumns<IncomeType>(
-  'Income'
-);
-export const expensesColumns: ColumnDef<ExpenseType>[] = createColumns<ExpenseType>(
-  'Expense'
-);
+// Columns will be created inside the component where `userInfos.currency` is available
+export function IncomeColumns() {
+  const { userInfos } = useAuth();  // Access user info inside component
+  return createColumns<IncomeType>('Income', userInfos.currency);
+};
+
+export  function ExpensesColumns(){
+  const { userInfos } = useAuth();  // Access user info inside component
+  return createColumns<ExpenseType>('Expense', userInfos.currency);
+};

@@ -7,6 +7,7 @@ import google from "@/images/google.png"
 import { Separator } from "./ui/separator"
 import { signup } from "@/functions/signup"
 import Loader from "./loader"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select"
 
 export function SignUpCard() {
 
@@ -81,10 +82,10 @@ export function SignUpCard() {
 
         const signUp = await signup(formData)
 
-        if(signUp === true){
+        if (signUp === true) {
             setLoading(false)
             router.push('/dashboard')
-        }else {
+        } else {
             console.log(signUp)
         }
         setLoading(false)
@@ -138,6 +139,37 @@ export function SignUpCard() {
                     {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
                 </div>
                 <div className="flex flex-col w-full text-sm">
+                    <label htmlFor="email">Currency</label>
+                    <Select required
+                        onValueChange={(value) => {
+                            console.log(value)
+                            setFormData((prev) => ({
+                                ...prev,
+                                currency: value, // Store only the category name
+                            }));
+                            return
+                        }}                >
+                        <SelectTrigger className="col-span-3">
+                            <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem key={1} value="XAF">
+                                XAF
+                            </SelectItem>
+                            <SelectItem key={2} value="CAD">
+                                CAD
+                            </SelectItem>
+                            <SelectItem key={3} value="USD">
+                                USD
+                            </SelectItem>
+                            <SelectItem key={4} value="EUR">
+                                EURO
+                            </SelectItem>
+                        </SelectContent>
+                    </Select>
+                    {errors.email && <p style={{ color: 'red' }}>{errors.email}</p>}
+                </div>
+                <div className="flex flex-col w-full text-sm">
                     <label htmlFor="password">Password</label>
                     <input
                         type="password"
@@ -178,7 +210,7 @@ export function SignUpCard() {
                     <Separator className="flex-1" />
                 </div>
                 <Button variant="outline" className="font-bold w-full">
-                    <img style={{width: 20}} src={google.src} />  Google
+                    <img style={{ width: 20 }} src={google.src} />  Google
                 </Button>
                 <p className="text-sm text-gray-600">By signing up, you agree to our <Link className="underline" href="">Terms of Services</Link> and <Link className="underline" href="">Privacy Policy</Link></p>
                 <p className="text-gray-600">Already have an account ? <Link className="underline" href="/auth/login">Login</Link></p>

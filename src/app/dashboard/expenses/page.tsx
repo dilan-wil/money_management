@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from "react";
-import { expensesColumns } from "@/components/columns";
+import { ExpensesColumns } from "@/components/columns";
 import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { ExpenseType } from "@/lib/definitions";
@@ -39,7 +39,7 @@ export default function Page() {
         </Dialog>
       </div>
       <div className="text-xl">Total Expense per month : {expenseArray?.reduce((sum, expense) => sum + Number(expense.amount || 0), 0)} XAF</div>
-      <DataTable columns={expensesColumns} data={expenseArray} />
+      <DataTable columns={ExpensesColumns()} data={expenseArray} />
     </div>
   );
 }

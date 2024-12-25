@@ -295,7 +295,8 @@ export default function SettingsPage() {
             <div className="flex items-center justify-between w-full sm:w-auto gap-3">
               <span className="text-sm text-gray-600">
                 {showAmounts
-                  ? `XAF${calculateDisplayAmount(category).toFixed(2)}`
+                  ? `${userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$" : userInfos.currency === "EUR" ? "€" : "XAF"}
+                  ${calculateDisplayAmount(category).toFixed(2)}`
                   : `${category.percentage.toFixed(2)}%`
                 }
               </span>
