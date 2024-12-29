@@ -33,7 +33,7 @@ export default function Page() {
                             />
                         ))
                         : categories
-                            ?.filter((category: any) => category.isParent === false) // Filter categories
+                            ?.filter((category: any) => category.frequent === true) // Filter categories
                             .map((category: any) => (
                                 <CategorySummaryCard key={category.id} category={category} minimalist={false}/>
                             ))

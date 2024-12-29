@@ -10,22 +10,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { addToSubCollection } from "@/functions/add-to-sub-collection";
 import { useAuth } from "./context/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { calculateCurrentAmount } from "@/functions/calculate-current-amount";
 
 
 export function CreateDialog({ data, table, onClose, }: { data: string[]; table: string; onClose: () => void; }) {
-  const { user, categories, userInfos } = useAuth();
+  const { user, categories, userInfos, expenses } = useAuth();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  let divisor: number;
-  if(userInfos){
-    divisor = userInfos.budgetPeriod === "weekly" ? 4 : userInfos.budgetPeriod === "daily" ? 30 : 1;
-  }
 
   const [formData, setFormData] = useState(
     Object.fromEntries(data.map((field) => [field, ""]))
@@ -34,6 +31,49 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
   const [errors, setErrors] = useState(
     Object.fromEntries(data.map((field) => [field, ""]))
   );
+
+  const divisor = useMemo(() => {
+    // Ensure categories and formData.category are defined
+    if (!categories || !formData.category) return 0;
+
+    // Find the selected category
+    const selectedCategory = categories.find(
+      (category: any) => category.name === formData.category
+    );
+
+    if (selectedCategory && selectedCategory.budgetPeriod) {
+      // Calculate divisor based on the selected category's budgetPeriod
+      return selectedCategory.budgetPeriod === "weekly"
+        ? 4
+        : selectedCategory.budgetPeriod === "daily"
+          ? 30
+          : 1;
+    }
+
+    return 0; // Return 0 if no category or budgetPeriod is found
+  }, [categories, formData.category]);
+
+  // Calculate current amount
+  const currentAmount = useMemo(() => {
+    if (!categories || !formData.category) return 0;
+    const selectedCategory = categories.find(
+      (category: any) => category.name === formData.category
+    );
+    if (!selectedCategory.isParent) {
+
+      return calculateCurrentAmount(expenses, selectedCategory.id, selectedCategory.budgetPeriod);
+    }
+
+    // If category is a parent, calculate sum of subcategories
+    const subcategories = categories.filter((cat: any) => cat.parent === selectedCategory.id);
+    const subcategoriesAmount = subcategories.reduce((total: number, sub: any) => {
+      return total + calculateCurrentAmount(expenses, sub.id, selectedCategory.budgetPeriod);
+    }, 0);
+
+    const ownAmount = calculateCurrentAmount(expenses, selectedCategory.id, selectedCategory.budgetPeriod);
+
+    return ownAmount + subcategoriesAmount;
+  }, [formData.category, categories, expenses]);
 
   const validateField = (name: string, value: string) => {
     const error =
@@ -81,11 +121,13 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
         return;
       }
 
-      // Calculate current amount
-      const currentAmount = selectedCategory.currentAmount || 0; // Assume currentAmount is tracked in categories
+
+
       const newExpenseAmount = parseFloat(formData.amount) || 0;
 
-      if (currentAmount + newExpenseAmount > (selectedCategory.totalAmount/divisor)) {
+      console.log(currentAmount + newExpenseAmount)
+      console.log(selectedCategory.totalAmount / divisor)
+      if (currentAmount + newExpenseAmount > (selectedCategory.totalAmount / divisor)) {
         toast({
           variant: "destructive",
           title: "Error",
@@ -94,8 +136,15 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
         return;
       }
 
+      const updatedFormData: any = { ...formData };
+
+      // Convert amount field to a number if it exists
+      if (updatedFormData.amount) {
+        updatedFormData.amount = parseFloat(updatedFormData.amount as string);
+      }
+
       setLoading(true);
-      const addedSuccessful = await addToSubCollection(formData, user.uid, table);
+      const addedSuccessful = await addToSubCollection(updatedFormData, user.uid, table);
       setLoading(false);
 
       if (addedSuccessful !== null) {
@@ -149,7 +198,7 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
                   </SelectTrigger>
                   <SelectContent>
                     {categories
-                      ?.filter((category: any) => category.isParent === false) // Filter categories
+                      ?.sort((a: any, b: any) => a.name.localeCompare(b.name)) // Sort categories by name in ascending order
                       .map((category: any) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}

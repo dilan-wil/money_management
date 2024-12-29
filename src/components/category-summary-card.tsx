@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useAuth } from './context/auth-context'
 import { ExpenseType } from '@/lib/definitions'
 import { Loader2 } from 'lucide-react'
@@ -25,11 +25,21 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
     const divisor = category.budgetPeriod === "weekly" ? 4 : category.budgetPeriod === "daily" ? 30 : 1;
 
     // Calculate currentAmount for base on the budgetPeriod expenses
-    const currentAmount = calculateCurrentAmount(
-        expenses,
-        category.id,
-        category.budgetPeriod
-    );
+    const currentAmount = useMemo(() => {
+        if (!category.isParent) {
+            return calculateCurrentAmount(expenses, category.id, category.budgetPeriod);
+        }
+
+        // If category is a parent, calculate sum of subcategories
+        const subcategories = categories.filter((cat: any) => cat.parent === category.id);
+        const subcategoriesAmount = subcategories.reduce((total: number, sub: any) => {
+            return total + calculateCurrentAmount(expenses, sub.id, category.budgetPeriod);
+        }, 0);
+
+        const ownAmount = calculateCurrentAmount(expenses, category.id, category.budgetPeriod);
+        console.log(ownAmount + subcategoriesAmount)
+        return ownAmount + subcategoriesAmount;
+    }, [category, categories, expenses]);
 
     // Calculate the amount left for the category
     const amountLeft = (category.totalAmount / divisor) - currentAmount
@@ -52,6 +62,29 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
             });
             setLoading(false);
             return; // Prevent further processing
+        }
+
+        // Find the parent category (if it exists)
+        const parentCategory = categories.find((cat: any) => cat.id === category.parent);
+        console.log(parentCategory)
+        // Check if the expense will exceed the budget for the parent category
+        if (parentCategory) {
+            const parentChildCurrentAmount = categories
+                .filter((cat: any) => cat.parent === parentCategory.id)
+                .reduce((total: number, sub: any) => total + calculateCurrentAmount(expenses, sub.id, parentCategory.budgetPeriod), 0);
+
+            const ownAmount = calculateCurrentAmount(expenses, parentCategory.id, parentCategory.budgetPeriod);
+
+            const newParentAmount = parentChildCurrentAmount + ownAmount + (amount === null ? 0 : amount);
+            if (newParentAmount > parentCategory.totalAmount / divisor) {
+                toast({
+                    title: "Parent Budget Exceeded",
+                    description: `This expense would exceed the total budget for the main category (${parentCategory.name}). Please adjust the amount or select a different category.`,
+                    variant: "destructive",  // Show error style
+                });
+                setLoading(false);
+                return; // Prevent further processing
+            }
         }
 
         const newExpense: Omit<ExpenseType, 'id'> = {
@@ -134,7 +167,7 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories
-                                        .filter((category: any) => category.isParent === false) // Filter categories
+                                        .sort((a: any, b: any) => a.name.localeCompare(b.name)) // Sort categories by name in ascending order
                                         .map((category: any) => (
                                             <SelectItem key={category.id} value={category.id}>
                                                 {category.name}
