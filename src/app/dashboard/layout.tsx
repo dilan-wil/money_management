@@ -14,14 +14,11 @@ import { Bell, Search } from "lucide-react";
 import { getASubCollection } from "@/functions/get-a-sub-collection";
 import { getADocument } from "@/functions/get-a-document";
 import { Input } from "@/components/ui/input";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { SearchCategoryCard } from "@/components/search-category-card";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, income, setIncome, setCategories, setUserInfos, setExpenses } = useAuth();
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const query = searchParams.get("cat");
   const [search, setSearch] = React.useState("");
   const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({
     name: "Anonymous",
