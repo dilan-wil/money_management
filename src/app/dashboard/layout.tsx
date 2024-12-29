@@ -59,9 +59,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       console.error("User is not authenticated")
       return
     }
+    const totalIncome = (income && income.length > 0)
+        ? income.reduce((sum: number, inc: any) => sum + Number(inc.amount || 0), 0)
+        : 100000;
 
     // Set up real-time listener to fetch income data and update context
-    const unsubscribe = getASubCollection("users", user.uid, "categories", setCategories, income?.reduce((sum: number, income: any) => sum + Number(income.amount || 0), 0))
+    const unsubscribe = getASubCollection("users", user.uid, "categories", setCategories, totalIncome)
 
     // Cleanup listener on component unmount
     return () => unsubscribe && unsubscribe()
