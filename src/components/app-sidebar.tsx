@@ -45,6 +45,11 @@ const data = {
       icon: "CirclePercent",
     },
     {
+      title: "Financial Summary",
+      url: "/dashboard/summary",
+      icon: "ChartPie",
+    },
+    {
       title: "Settings",
       url: "/dashboard/settings",
       icon: "Settings2",

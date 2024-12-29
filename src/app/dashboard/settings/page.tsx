@@ -23,6 +23,8 @@ import { Switch } from "@/components/ui/switch"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Category } from '@/lib/definitions'
 import { useAuth } from "@/components/context/auth-context";
+import { Checkbox } from '@/components/ui/checkbox'
+import { Skeleton } from '@/components/ui/skeleton'
 
 
 
@@ -32,8 +34,10 @@ export default function SettingsPage() {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set<string>())
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [frequent, setFrequent] = useState(false)
   const [newCategoryName, setNewCategoryName] = useState('')
   const [newCategoryValue, setNewCategoryValue] = useState('')
+  const [newCategoryBudgetPeriod, setNewCategoryBudgetPeriod] = useState('')
   const [newCategoryType, setNewCategoryType] = useState<'percentage' | 'amount'>('percentage')
   const [currentParentId, setCurrentParentId] = useState<string>("")
   const [editingCategory, setEditingCategory] = useState<Category | null>(null)
@@ -42,26 +46,26 @@ export default function SettingsPage() {
 
   const totalIncome = income?.reduce((sum: number, income: any) => sum + Number(income.amount || 0), 0)
 
-  const handleBudgetPeriodChange = async (value: string) => {
-    console.log(value)
-    if (!user) {
-      return
-    }
-    try {
-      await updateADocument("users", user.uid, { budgetPeriod: value })
-      toast({
-        title: "Updated",
-        description: "Budget Period updated successfully.",
-        variant: "success",
-      })
-    } catch {
-      toast({
-        title: "Error",
-        description: "Failed to update budget period.",
-        variant: "destructive",
-      })
-    }
-  }
+  // const handleBudgetPeriodChange = async (value: string) => {
+  //   console.log(value)
+  //   if (!user) {
+  //     return
+  //   }
+  //   try {
+  //     await updateADocument("users", user.uid, { budgetPeriod: value })
+  //     toast({
+  //       title: "Updated",
+  //       description: "Budget Period updated successfully.",
+  //       variant: "success",
+  //     })
+  //   } catch {
+  //     toast({
+  //       title: "Error",
+  //       description: "Failed to update budget period.",
+  //       variant: "destructive",
+  //     })
+  //   }
+  // }
 
   const handleAddCategory = (parentId: string) => {
     setCurrentParentId(parentId)
@@ -76,6 +80,7 @@ export default function SettingsPage() {
     setCurrentParentId(category.parent)
     setEditingCategory(category)
     setNewCategoryName(category.name)
+    setNewCategoryBudgetPeriod(category.budgetPeriod)
     setNewCategoryValue(category.percentage.toString())
     setNewCategoryType('percentage')
     setIsDialogOpen(true)
@@ -101,12 +106,12 @@ export default function SettingsPage() {
 
       const parentTotalAmount = parentCategory?.totalAmount || totalIncome;
 
-      console.log(editingCategory)
+
       const percentageValue =
         newCategoryType === 'amount'
           ? (value / parentTotalAmount) * 100
           : value;
-      console.log(editingCategory)
+
 
       // Validate total percentage does not exceed 100%
       const totalPercentage = categories.reduce(
@@ -129,6 +134,8 @@ export default function SettingsPage() {
           ...editingCategory,
           name: newCategoryName,
           percentage: percentageValue,
+          budgetPeriod: newCategoryBudgetPeriod,
+          frequent: frequent
         }
         const updatedSuccessful = await updateASubDocument("users", user.uid, "categories", editingCategory.id, updatedCategory)
         console.log(updatedSuccessful)
@@ -158,7 +165,10 @@ export default function SettingsPage() {
           parent: currentParentId || 'none',
           currentAmount: 0,
           totalAmount: (percentageValue / 100) * parentTotalAmount,
+          budgetPeriod: newCategoryBudgetPeriod,
+          frequent: frequent
         }
+
         if (currentParentId !== 'none') {
           await updateASubDocument("users", user.uid, "categories", currentParentId, { isParent: true })
         }
@@ -188,7 +198,7 @@ export default function SettingsPage() {
       setNewCategoryValue('')
       setEditingCategory(null)
     } catch (error) {
-      if(error = "Total percentage cannot exceed 100%"){
+      if (error = "Total percentage cannot exceed 100%") {
         toast({
           title: "Incorrect percentage",
           description: "Total percentage cannot exceed 100%.",
@@ -270,9 +280,24 @@ export default function SettingsPage() {
     return (category.percentage / 100) * (parentPercentage / 100) * totalIncome
   }
 
+  if (categories === null) {
+    return (
+      <div className="space-y-4">
+        {[...Array(5)].map((_, index) => (
+          <Card key={index} className="mb-2">
+            <CardContent className="p-4">
+              <Skeleton className="h-6 w-1/3 mb-2" />
+              <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
   const renderCategories = (parent: string, level: number = 0) => {
     return categories
-      .filter((category: any) => category.parent === parent)
+      ?.filter((category: any) => category.parent === parent)
       .map((category: any) => (
         <Card key={category.id} className="mb-2" style={{ marginLeft: `${level * 20}px` }}>
           <CardContent className="flex flex-row items-start sm:items-center justify-between p-4 gap-2">
@@ -357,20 +382,11 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 max-w-4xl">
-      <div className="mb-8">
-        <Label htmlFor="budget-period" className="text-lg font-medium mb-2">Budget Period</Label>
-        <Select value={userInfos.budgetPeriod} onValueChange={(value) => handleBudgetPeriodChange(value)}>
-          <SelectTrigger id="budget-period" className="w-full">
-            <SelectValue placeholder="Select budget period" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="daily">Daily</SelectItem>
-            <SelectItem value="weekly">Weekly</SelectItem>
-            <SelectItem value="monthly">Monthly</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="container mx-auto max-w-4xl">
+      <h4>You can still budget 
+        <span className='text-blue-400'> {100 - (categories?.reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}% </span>
+        of your total income(s)
+      </h4>
 
       <div className="mb-6">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-4">
@@ -455,6 +471,35 @@ export default function SettingsPage() {
                 ) : (
                   <DollarSign className="ml-2" />
                 )}
+              </div>
+            </div>
+            <div className="grid grid-cols-4 items-center gap-4">
+              <Label className="text-right">Budget Period</Label>
+              <div className="col-span-3 flex items-center">
+                <Select value={newCategoryBudgetPeriod}
+                  onValueChange={(value) => setNewCategoryBudgetPeriod(value)}
+                >
+                  <SelectTrigger id="budget-period" className="">
+                    <SelectValue placeholder="Select budget period" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="daily">Daily</SelectItem>
+                    <SelectItem value="weekly">Weekly</SelectItem>
+                    <SelectItem value="monthly">Monthly</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex justify-between">
+              <div>
+                <Label className="text-right">Frequent Category</Label><br />
+                <span style={{ fontSize: 10 }} className='text-blue-400'>Check the box to show an overview of your category on the overview page</span>
+              </div>
+              <div className="col-span-3 flex items-center">
+                <Checkbox
+                  checked={frequent}
+                  onCheckedChange={(checked) => setFrequent(!!checked)}
+                />
               </div>
             </div>
           </div>

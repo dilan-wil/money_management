@@ -1,4 +1,4 @@
-import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, Settings2, Home } from "lucide-react";
+import { ChevronRight, type LucideIcon, CircleDollarSign, CirclePercent, ChartPie, Settings2, Home } from "lucide-react";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Collapsible,
@@ -22,6 +22,7 @@ const iconMap: Record<string, LucideIcon> = {
   CircleDollarSign,
   CirclePercent,
   Settings2,
+  ChartPie
 };
 
 export function NavMain({

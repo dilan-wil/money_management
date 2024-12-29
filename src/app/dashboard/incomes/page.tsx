@@ -8,19 +8,20 @@ import { CirclePlus } from "lucide-react";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { CreateDialog } from "@/components/create-dialog";
 import { useAuth } from "@/components/context/auth-context";
-import { Card } from "@/components/ui/card";
 
 export default function Page() {
   const { income, userInfos } = useAuth();
   const [incomes, setIncomes] = useState<IncomeType[]>([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  // const test = Incom
+
   useEffect(() => {
     if (income) {
-      console.log(income)
-      setIncomes(income)
+      console.log(income);
+      setIncomes(income);
     }
   }, [income]);
+
+  const totalIncome = incomes?.reduce((sum, income) => sum + Number(income.amount || 0), 0);
 
   return (
     <div className="container mx-auto py-2">
@@ -40,9 +41,25 @@ export default function Page() {
           />
         </Dialog>
       </div>
-      <div className="text-xl">Total Income : {incomes?.reduce((sum, income) => sum + Number(income.amount || 0), 0)} XAF</div>
-
-      <DataTable columns={IncomeColumns()} data={incomes} />
+      {income === null ? (
+        <div>
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-gray-300 rounded w-1/4"></div>
+            <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+            <div className="h-6 bg-gray-300 rounded w-3/4"></div>
+          </div>
+          <div className="mt-6 animate-pulse space-y-3">
+            {Array.from({ length: 5 }).map((_, index) => (
+              <div key={index} className="h-6 bg-gray-300 rounded w-full"></div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <>
+          <div className="text-xl">Total Income : {totalIncome} XAF</div>
+          <DataTable columns={IncomeColumns()} data={incomes} type="income"/>
+        </>
+      )}
     </div>
   );
 }

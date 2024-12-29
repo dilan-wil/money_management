@@ -77,4 +77,6 @@ export type Category = {
   parent: string
   currentAmount: number
   totalAmount?: number
+  budgetPeriod: string
+  frequent: boolean
 }

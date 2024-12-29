@@ -32,27 +32,26 @@ export const getASubCollection = (
           const dataMap = new Map(
             data.map((item) => [item.id, { ...item, totalAmount: 0 }])
           );
-        
+
           let hasUnresolved = true; // Flag to check if there are unresolved totalAmounts
           while (hasUnresolved) {
             hasUnresolved = false;
-        
+
             data.forEach((item: any) => {
               const currentItem = dataMap.get(item.id);
-        
+
               if (!currentItem) return;
-        
+
               if (item.parent === "none") {
                 // Top-level: calculate as percentage of totalIncome
                 if (currentItem.totalAmount === 0) {
-                  console.log(totalIncome)
                   currentItem.totalAmount = (item.percentage / 100) * (totalIncome ?? 50000);
                   hasUnresolved = true;
                 }
               } else if (dataMap.has(item.parent)) {
                 // Child: calculate as percentage of parent's totalAmount
                 const parent = dataMap.get(item.parent);
-        
+
                 if (parent && parent.totalAmount && currentItem.totalAmount === 0) {
                   currentItem.totalAmount = (item.percentage / 100) * parent.totalAmount;
                   hasUnresolved = true;
@@ -60,13 +59,13 @@ export const getASubCollection = (
               }
             });
           }
-        
+
           console.log(Array.from(dataMap.values()));
-        
+
           // Update with calculated totalAmount
           onDataUpdate(Array.from(dataMap.values()));
         }
-         else {
+        else {
           console.log(data)
           // If no relevant fields for calculation, just return the data
           onDataUpdate(data);

@@ -1,30 +1,35 @@
-'use client'
-import { AppSidebar } from "@/components/app-sidebar"
-import * as React from "react"
-import { Separator } from "@/components/ui/separator"
+'use client';
+import { AppSidebar } from "@/components/app-sidebar";
+import * as React from "react";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import ProtectedRoute from "@/components/context/protected-route"
-import { useAuth } from "@/components/context/auth-context"
-import { NavUser } from "@/components/nav-user"
-import { Bell } from "lucide-react"
-import { getASubCollection } from "@/functions/get-a-sub-collection"
-import { getADocument } from "@/functions/get-a-document"
+} from "@/components/ui/sidebar";
+import ProtectedRoute from "@/components/context/protected-route";
+import { useAuth } from "@/components/context/auth-context";
+import { NavUser } from "@/components/nav-user";
+import { Bell, Search } from "lucide-react";
+import { getASubCollection } from "@/functions/get-a-sub-collection";
+import { getADocument } from "@/functions/get-a-document";
+import { Input } from "@/components/ui/input";
+import { useRouter, useSearchParams } from "next/navigation";
+import { SearchCategoryCard } from "@/components/search-category-card";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const { user, income, setIncome, setCategories, setUserInfos, setExpenses } = useAuth()
+  const { user, income, setIncome, setCategories, setUserInfos, setExpenses } = useAuth();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const query = searchParams.get("cat");
+  const [search, setSearch] = React.useState("");
   const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({
     name: "Anonymous",
     email: "No email",
     avatar: "default_avatar.png", // Default avatar
   })
-
-
-  // This useEffect will fetch and set the expenses as soon as the user is authenticated
-  React.useEffect(() => {
+   // This useEffect will fetch and set the expenses as soon as the user is authenticated
+   React.useEffect(() => {
     if (!user) {
       console.error("User is not authenticated")
       return
@@ -72,10 +77,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       console.error("User is not authenticated");
       return;
     }
-  
+
     // Get document and set the state
     const unsubscribe = getADocument(user.uid, "users", setUserInfos);
-  
+
     // Cleanup listener on component unmount
     return () => {
       if (unsubscribe) unsubscribe();
@@ -96,6 +101,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     })
   }, [user])
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearch(value);
+
+   
+  };
+
   return (
     <ProtectedRoute>
       <SidebarProvider>
@@ -105,26 +117,35 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex h-16 shrink-0 items-center gap-2">
               <SidebarTrigger className="-ml-1" />
               <Separator orientation="vertical" className="mr-2 h-4" />
-              {/* <Breadcrumb>
-                <BreadcrumbList>
-                  <BreadcrumbItem>
-                    <BreadcrumbPage>
-                      {`${currentDate.toLocaleString('default', { month: 'long' })} ${currentDate.getFullYear()}`}
-                    </BreadcrumbPage>
-                  </BreadcrumbItem>
-                </BreadcrumbList>
-              </Breadcrumb> */}
             </div>
+            {/* Search Bar */}
+            <div className="flex-grow max-w-md mx-4">
+              <div className="relative">
+                <Input
+                  type="search"
+                  placeholder="Search categories..."
+                  value={search}
+                  onChange={handleSearchChange}
+                  className="w-full pl-10"
+                />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              </div>
+            </div>
+
             <div className="flex items-center gap-2">
               <Bell className="cursor-pointer" size={20} />
-              <NavUser user={userInfo} />
+              <NavUser user={{ name: user?.displayName || "Anonymous", email: user?.email || "No email", avatar: user?.photoURL || "default_avatar.png" }} />
             </div>
           </header>
           <div className="p-8 overflow-x-hidden">
-            {children}
+            {search ? (
+              <SearchCategoryCard searchWord={search}/>
+            ) : (
+              children
+            )}
           </div>
         </SidebarInset>
       </SidebarProvider>
     </ProtectedRoute>
-  )
+  );
 }

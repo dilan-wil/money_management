@@ -13,44 +13,28 @@ import { Loader2 } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
 import { addToSubCollection } from '@/functions/add-to-sub-collection'
 import { Timestamp } from 'firebase/firestore'
+import { calculateCurrentAmount } from '@/functions/calculate-current-amount'
 
-export const CategorySummaryCard = ({ category }: { category: any }) => {
+export const CategorySummaryCard = ({ category, minimalist }: { category: any, minimalist: boolean }) => {
     const { categories, user, expenses, userInfos } = useAuth()
     const [amount, setAmount] = useState<number | null>(null)
     const [description, setDescription] = useState("")
     const [loading, setLoading] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
     const { toast } = useToast()
-    const divisor = userInfos.budgetPeriod === "weekly" ? 4 : userInfos.budgetPeriod === "daily" ? 30 : 1;
+    const divisor = category.budgetPeriod === "weekly" ? 4 : category.budgetPeriod === "daily" ? 30 : 1;
 
-    // Calculate the current amount based on expenses that match the category id
-    const today = new Date();
-    today.setHours(0, 0, 0, 0); // Normalize to the start of today
+    // Calculate currentAmount for base on the budgetPeriod expenses
+    const currentAmount = calculateCurrentAmount(
+        expenses,
+        category.id,
+        category.budgetPeriod
+    );
 
-    const todayExpenses = expenses.filter((expense: ExpenseType) => {
-        if (!expense.createdAt) return false; // Skip if createdAt is missing
+    // Calculate the amount left for the category
+    const amountLeft = (category.totalAmount / divisor) - currentAmount
 
-        let createdAt: Date;
 
-        if (expense.createdAt instanceof Timestamp) {
-            // Convert Firestore Timestamp to JavaScript Date
-            createdAt = expense.createdAt.toDate();
-        } else if (expense.createdAt instanceof Date) {
-            // Already a Date object
-            createdAt = expense.createdAt;
-        } else {
-            // If createdAt is an unexpected format
-            return false;
-        }
-
-        createdAt.setHours(0, 0, 0, 0); // Normalize createdAt to midnight
-        return createdAt.getTime() === today.getTime(); // Compare normalized dates
-    });
-
-    // Calculate currentAmount for today's expenses
-    const currentAmount = todayExpenses
-        .filter((expense: ExpenseType) => expense.categoryId === category.id)
-        .reduce((total: number, expense: ExpenseType) => total + (expense.amount ?? 0), 0);
     // Calculate progress value
     const progressValue = (currentAmount / (category.totalAmount / divisor)) * 100
 
@@ -94,6 +78,8 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
         } finally {
             setLoading(false);
             setIsDialogOpen(false);
+            setAmount(null)
+            setDescription("")
         }
     };
 
@@ -102,7 +88,7 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
         <div>
             <Card key={category.id} className="overflow-hidden">
                 <CardHeader className="bg-gray-50" style={{ backgroundImage: 'url(/chalk.webp)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
-                    <CardTitle className="text-lg text-gray-300">{category.name}</CardTitle>
+                    <CardTitle className="text-lg text-gray-300">{category.name}<br /></CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4">
                     <div className="mb-4">
@@ -113,6 +99,13 @@ export const CategorySummaryCard = ({ category }: { category: any }) => {
                         {(currentAmount)} /
                         {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$" : userInfos.currency === "EUR" ? "€" : "XAF"}
                         {(category.totalAmount / divisor).toFixed(2)}
+                    </p>
+                    <p className='text-sm text-gray-500 mb-2'>
+                        You have <strong className='text-blue-400'>{amountLeft}</strong>
+                        {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$ " : userInfos.currency === "EUR" ? "€ " : "XAF "}
+                        for <strong className='text-blue-400'>{category.name} </strong>
+                        this <strong className='text-blue-400'>{category.budgetPeriod === "weekly" ? "Week" : category.budgetPeriod === "Day" ? 30 : "Month"}</strong>
+
                     </p>
                     <Button onClick={() => setIsDialogOpen(true)} className="w-full bg-green-600">
                         <PlusIcon className="w-4 h-4 mr-2" />

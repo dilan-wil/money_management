@@ -22,7 +22,10 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
   const { user, categories, userInfos } = useAuth();
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-  const divisor = userInfos.budgetPeriod === "weekly" ? 4 : userInfos.budgetPeriod === "daily" ? 30 : 1;
+  let divisor: number;
+  if(userInfos){
+    divisor = userInfos.budgetPeriod === "weekly" ? 4 : userInfos.budgetPeriod === "daily" ? 30 : 1;
+  }
 
   const [formData, setFormData] = useState(
     Object.fromEntries(data.map((field) => [field, ""]))
@@ -146,7 +149,7 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
                   </SelectTrigger>
                   <SelectContent>
                     {categories
-                      .filter((category: any) => category.isParent === false) // Filter categories
+                      ?.filter((category: any) => category.isParent === false) // Filter categories
                       .map((category: any) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}
