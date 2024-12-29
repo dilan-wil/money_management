@@ -108,32 +108,54 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
         console.error("User is not authenticated");
         return false;
       }
-
-      const selectedCategory = categories.find(
-        (category: any) => category.name === formData.category
-      );
-      if (!selectedCategory) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Invalid category selected.",
-        });
-        return;
-      }
-
-
-
-      const newExpenseAmount = parseFloat(formData.amount) || 0;
-
-      console.log(currentAmount + newExpenseAmount)
-      console.log(selectedCategory.totalAmount / divisor)
-      if (currentAmount + newExpenseAmount > (selectedCategory.totalAmount / divisor)) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: `Adding this expense will exceed the total allowed amount for the ${selectedCategory.name} category.`,
-        });
-        return;
+      if(table=="expenses"){
+        const selectedCategory = categories.find(
+          (category: any) => category.name === formData.category
+        );
+        // if (!selectedCategory) {
+        //   toast({
+        //     variant: "destructive",
+        //     title: "Error",
+        //     description: "Invalid category selected.",
+        //   });
+        //   return;
+        // }
+  
+  
+  
+        const newExpenseAmount = parseFloat(formData.amount) || 0;
+  
+        console.log(currentAmount + newExpenseAmount)
+        console.log(selectedCategory.totalAmount / divisor)
+        if (currentAmount + newExpenseAmount > (selectedCategory.totalAmount / divisor)) {
+          toast({
+            variant: "destructive",
+            title: "Error",
+            description: `Adding this expense will exceed the total allowed amount for the ${selectedCategory.name} category.`,
+          });
+          return;
+        }
+        const parentCategory = categories.find((cat: any) => cat.id === selectedCategory.parent);
+          console.log(parentCategory)
+          // Check if the expense will exceed the budget for the parent category
+          if (parentCategory) {
+              const parentChildCurrentAmount = categories
+                  .filter((cat: any) => cat.parent === parentCategory.id)
+                  .reduce((total: number, sub: any) => total + calculateCurrentAmount(expenses, sub.id, parentCategory.budgetPeriod), 0);
+  
+              const ownAmount = calculateCurrentAmount(expenses, parentCategory.id, parentCategory.budgetPeriod);
+  
+              const newParentAmount = parentChildCurrentAmount + ownAmount + (newExpenseAmount === null ? 0 : newExpenseAmount);
+              if (newParentAmount > parentCategory.totalAmount / divisor) {
+                  toast({
+                      title: "Parent Budget Exceeded",
+                      description: `This expense would exceed the total budget for the main category (${parentCategory.name}). Please adjust the amount or select a different category.`,
+                      variant: "destructive",  // Show error style
+                  });
+                  setLoading(false);
+                  return; // Prevent further processing
+              }
+          }
       }
 
       const updatedFormData: any = { ...formData };
