@@ -120,7 +120,7 @@ export default function SettingsPage() {
         0
       );
 
-      if (totalPercentage + percentageValue > 100) {
+      if (totalPercentage - (editingCategory ? editingCategory.percentage : 0) + percentageValue > 100) {
         throw new Error("Total percentage cannot exceed 100%");
       }
 
@@ -384,7 +384,9 @@ export default function SettingsPage() {
   return (
     <div className="container mx-auto max-w-4xl">
       <h4>You can still budget 
-        <span className='text-blue-400'> {100 - (categories?.reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}% </span>
+        <span className='text-blue-400'> 
+          {100 - (categories?.filter((category: any) => category.parent === "none").reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}% 
+          </span>
         of your total income(s)
       </h4>
 

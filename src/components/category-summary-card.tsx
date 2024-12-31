@@ -137,7 +137,7 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
                         You have <strong className='text-blue-400'>{amountLeft}</strong>
                         {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$ " : userInfos.currency === "EUR" ? "€ " : "XAF "}
                         for <strong className='text-blue-400'>{category.name} </strong>
-                        this <strong className='text-blue-400'>{category.budgetPeriod === "weekly" ? "Week" : category.budgetPeriod === "Day" ? 30 : "Month"}</strong>
+                        this <strong className='text-blue-400'>{category.budgetPeriod === "weekly" ? "Week" : category.budgetPeriod === "daily" ? "Day" : "Month"}</strong>
 
                     </p>
                     <Button onClick={() => setIsDialogOpen(true)} className="w-full bg-green-600">

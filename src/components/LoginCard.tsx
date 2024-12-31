@@ -9,10 +9,14 @@ import { login } from "@/functions/login"
 import Loader from "./loader"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/hooks/use-toast"
+import { Dialog, DialogContent, DialogFooter, DialogTrigger } from "./ui/dialog"
+import { sendPasswordResetEmail } from "firebase/auth"
+import { auth } from "@/functions/firebase"
 
 export function LoginCard() {
+    const [resetEmail, setResetEmail] = useState("");
 
-    const {toast} = useToast();
+    const { toast } = useToast();
     const router = useRouter()
 
     const [loading, setLoading] = useState(false)
@@ -26,6 +30,7 @@ export function LoginCard() {
         email: '',
         password: '',
     })
+    const [isResetLoading, setIsResetLoading] = useState(false);
 
     const [isValid, setIsValid] = useState(false)
 
@@ -43,6 +48,26 @@ export function LoginCard() {
 
         setErrors(newErrors)
     }
+
+    const handleResetPassword = async () => {
+        if (!resetEmail) {
+            toast({ variant: "destructive", title: "Erreur", description: "Veuillez entrer votre email." });
+            return;
+        }
+
+        setIsResetLoading(true);
+
+        try {
+            await sendPasswordResetEmail(auth, resetEmail);
+            toast({ variant: "success", title: "Email envoyé", description: "Vérifiez votre boîte mail pour réinitialiser le mot de passe." });
+            setResetEmail(""); // Clear input after success
+        } catch (error: any) {
+            console.error("Error sending password reset email:", error);
+            toast({ variant: "destructive", title: "Erreur", description: "Impossible d'envoyer l'email de réinitialisation." });
+        } finally {
+            setIsResetLoading(false);
+        }
+    };
 
     // Handle field changes and validate in real-time
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -64,17 +89,17 @@ export function LoginCard() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
-        
+
         try {
             const loginSuccessful = await login(formData);
 
-            
+
             if (loginSuccessful) {
                 toast({
                     variant: "success",
                     title: "Login Successful.",
                     description: "You will be redirected to your dashboard page.",
-                  })
+                })
                 router.push('/dashboard');
             } else {
                 console.error("Login failed");
@@ -82,7 +107,7 @@ export function LoginCard() {
                     variant: "destructive",
                     title: "Wrong email or password.",
                     description: "Please ensure to enter the correct email and password.",
-                  })
+                })
             }
         } catch (error) {
             console.error("Error during login:", error);
@@ -90,12 +115,12 @@ export function LoginCard() {
                 variant: "destructive",
                 title: "Wrong email or password.",
                 description: "Please ensure to enter the correct email and password.",
-              })
+            })
         } finally {
             setLoading(false);
         }
     };
-    
+
 
     return (
         <div className="flex flex-col items-center justify-center gap-4">
@@ -129,13 +154,39 @@ export function LoginCard() {
                     />
                 </div>
                 <SubmitButton isValid={isValid} />
+                <div className="bottom-content">
+                    <Dialog>
+                        <DialogTrigger>
+                            <p className="have-acount">Forgot password ?</p>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <h3>Reset your password</h3>
+                            <input
+                                type="email"
+                                placeholder="Entrez votre email"
+                                value={resetEmail}
+                                onChange={(e) => setResetEmail(e.target.value)}
+                                className="box-input"
+                            />
+                            <DialogFooter>
+                                <button
+                                    onClick={handleResetPassword}
+                                    className="site-btn primary-btn"
+                                    disabled={isResetLoading}
+                                >
+                                    {isResetLoading ? "Envoi..." : "Envoyer"}
+                                </button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
                 <div className="flex items-center gap-4">
                     <Separator className="flex-1" />
                     <span className="text-muted-foreground">OR CONTINUE WITH</span>
                     <Separator className="flex-1" />
                 </div>
                 <Button variant="outline" className="font-bold w-full">
-                    <img style={{width: 20}} src={google.src} />  Google
+                    <img style={{ width: 20 }} src={google.src} />  Google
                 </Button>
                 <p className="text-gray-600">Don't have an account ? <Link className="underline" href="/auth/sign-up">Sign Up</Link></p>
             </form>
@@ -146,7 +197,7 @@ export function LoginCard() {
 function SubmitButton({ isValid }: { isValid: boolean }) {
     return (
         <Button className="w-full" disabled={!isValid} type="submit">
-            Sign Up
+            Sign In
         </Button>
     )
 }

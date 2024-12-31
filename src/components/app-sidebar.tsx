@@ -18,6 +18,7 @@ import {
   SidebarSeparator,
 } from "@/components/ui/sidebar"
 import { useAuth } from "./context/auth-context"
+import { ScrollArea, ScrollBar } from "./ui/scroll-area"
 
 // This is sample data.
 const data = {
@@ -70,27 +71,30 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user } = useAuth();
   const [sidebarOpen, setSidebarOpen] = React.useState(true); // Track the sidebar state
-  const [userInfo, setUserInfo] = React.useState<{name: string, email: string, avatar: string}>({name: "", email: "", avatar: ""})
+  const [userInfo, setUserInfo] = React.useState<{ name: string, email: string, avatar: string }>({ name: "", email: "", avatar: "" })
   React.useEffect(() => {
     if (!user) {
       console.error("User is not authenticated");
       return;
     }
-    setUserInfo({name: user.displayName || "Anonymous", email: user.email || "No email", avatar: user.photoURL || "No avatar"})
-    
+    setUserInfo({ name: user.displayName || "Anonymous", email: user.email || "No email", avatar: user.photoURL || "No avatar" })
+
   }, [])
   const closeSidebar = () => setSidebarOpen(false); // Function to close sidebar
 
   return (
-    <Sidebar {...props} > 
-      <SidebarHeader style={{ backgroundImage: 'url(/chalk.webp)'}} className="flex justify-center items-center h-16 border-b border-sidebar-border text-gray-400">
+    <Sidebar {...props} >
+      <SidebarHeader style={{ backgroundImage: 'url(/chalk.webp)' }} className="flex justify-center items-center h-16 border-b border-sidebar-border text-gray-400">
         <p className="text-2xl font-bold">MYMONEY</p>
       </SidebarHeader>
-      <SidebarContent style={{ backgroundImage: 'url(/chalk.webp)'}} className="text-gray-300">
-        <SidebarSeparator className="mx-0" />
-        <NavMain items={data.navMain} />
-        <DatePicker />
-      </SidebarContent>
+      <ScrollArea>
+        <SidebarContent style={{ backgroundImage: 'url(/chalk.webp)', overflowX: "hidden" }} className="text-gray-300">
+          <SidebarSeparator className="mx-0" />
+          <NavMain items={data.navMain} />
+          <DatePicker />
+        </SidebarContent>
+        <ScrollBar />
+      </ScrollArea>
       {/* <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
