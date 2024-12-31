@@ -376,6 +376,14 @@ export default function SettingsPage() {
               </div>
             </div>
           </CardContent>
+          {category.isParent &&
+            <h4>You can still budget
+              <span className='text-blue-400'>
+                {100 - (categories?.filter((cat: any) => cat.parent === category.id).reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}%
+              </span>
+              of your total income(s)
+            </h4>
+          }
           {category.isParent && expandedItems.has(category.id) && renderCategories(category.id, level + 1)}
         </Card>
       ))
@@ -383,10 +391,10 @@ export default function SettingsPage() {
 
   return (
     <div className="container mx-auto max-w-4xl">
-      <h4>You can still budget 
-        <span className='text-blue-400'> 
-          {100 - (categories?.filter((category: any) => category.parent === "none").reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}% 
-          </span>
+      <h4>You can still budget
+        <span className='text-blue-400'>
+          {100 - (categories?.filter((category: any) => category.parent === "none").reduce((sum: number, category: Category) => sum + Number(category.percentage || 0), 0))}%
+        </span>
         of your total income(s)
       </h4>
 
