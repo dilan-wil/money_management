@@ -52,7 +52,7 @@ export default function Page() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-                <DoubleLineChart />
+                {/* <DoubleLineChart /> */}
                 <PieDonutChart />
             </div>
 
