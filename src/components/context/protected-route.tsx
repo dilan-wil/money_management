@@ -4,6 +4,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "./auth-context";
+import Loader from "../loader";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,7 +21,7 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
   }, [user, loading, router]);
 
   if (loading) {
-    return <p>Loading...</p>;
+    return <Loader />;
   }
 
   return user ? <>{children}</> : null;

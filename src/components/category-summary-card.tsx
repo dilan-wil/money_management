@@ -133,14 +133,14 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
                         {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$" : userInfos.currency === "EUR" ? "€" : "XAF"}
                         {(category.totalAmount / divisor).toFixed(2)}
                     </p>
-                    <p className='text-sm text-gray-500 mb-2'>
+                    <p className="text-sm sm:text-[12px] text-gray-500 mb-2">
                         You have <strong className='text-blue-400'>{amountLeft}</strong>
                         {userInfos.currency === "CAD" || userInfos.currency === "USD" ? "$ " : userInfos.currency === "EUR" ? "€ " : "XAF "}
                         for <strong className='text-blue-400'>{category.name} </strong>
                         this <strong className='text-blue-400'>{category.budgetPeriod === "weekly" ? "Week" : category.budgetPeriod === "daily" ? "Day" : "Month"}</strong>
 
                     </p>
-                    <Button onClick={() => setIsDialogOpen(true)} className="w-full bg-green-600">
+                    <Button disabled={category.isParent} onClick={() => setIsDialogOpen(true)} className="w-full bg-green-600">
                         <PlusIcon className="w-4 h-4 mr-2" />
                         Add Expense
                     </Button>
@@ -167,7 +167,8 @@ export const CategorySummaryCard = ({ category, minimalist }: { category: any, m
                                 </SelectTrigger>
                                 <SelectContent>
                                     {categories
-                                        .sort((a: any, b: any) => a.name.localeCompare(b.name)) // Sort categories by name in ascending order
+                                        ?.filter((cat: any) => cat.isParent === false)
+                                        .sort((a: any, b: any) => a.name.localeCompare(b.name))
                                         .map((category: any) => (
                                             <SelectItem key={category.id} value={category.id}>
                                                 {category.name}

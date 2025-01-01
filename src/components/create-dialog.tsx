@@ -220,7 +220,8 @@ export function CreateDialog({ data, table, onClose, }: { data: string[]; table:
                   </SelectTrigger>
                   <SelectContent>
                     {categories
-                      ?.sort((a: any, b: any) => a.name.localeCompare(b.name)) // Sort categories by name in ascending order
+                      ?.filter((cat: any) => cat.isParent === false)
+                      .sort((a: any, b: any) => a.name.localeCompare(b.name)) // Sort categories by name in ascending order
                       .map((category: any) => (
                         <SelectItem key={category.id} value={category.id}>
                           {category.name}

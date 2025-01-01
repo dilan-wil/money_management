@@ -137,7 +137,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <NavUser user={{ name: user?.displayName || "Anonymous", email: user?.email || "No email", avatar: user?.photoURL || "default_avatar.png" }} />
             </div>
           </header>
-          <div className="p-8 overflow-x-hidden">
+          <div className="p-8  overflow-x-hidden">
             {search ? (
               <SearchCategoryCard searchWord={search}/>
             ) : (
