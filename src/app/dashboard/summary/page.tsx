@@ -200,7 +200,20 @@ export default function FinancialSummaryPage() {
                 </Card>
             </div>
 
+
             <div className="grid gap-6 md:grid-cols-2">
+
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Category Breakdown</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="space-y-4">
+                            {renderCategoryBreakdown()}
+                        </div>
+                    </CardContent>
+                </Card>
+
                 <Card className="max-w-full overflow-hidden">
                     <CardHeader>
                         <CardTitle>Expense Distribution</CardTitle>
@@ -240,17 +253,6 @@ export default function FinancialSummaryPage() {
                     </CardContent>
                 </Card>
 
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Category Breakdown</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="space-y-4">
-                            {renderCategoryBreakdown()}
-                        </div>
-                    </CardContent>
-                </Card>
 
                 {/* Monthly Income vs Expenses */}
                 <Card className="overflow-hidden">
