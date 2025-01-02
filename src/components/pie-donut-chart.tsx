@@ -14,26 +14,20 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { useAuth } from "./context/auth-context"
-const chartData = [
-  { name: "chrome", amount: 35000, fill: "var(--color-chrome)" },
-  { name: "transport", amount: 25000, fill: "var(--color-safari)" },
-  { name: "restaurant", amount: 20000, fill: "var(--color-firefox)" },
-  { name: "other", amount: 20000, fill: "var(--color-other)" },
-]
 
 const COLORS = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40']
 
 export function PieDonutChart() {
     const {categories} = useAuth()
-  
-
-  const pieChartData = categories
-  .filter((cat: any) => cat.parent === 'none')
-  .map((category: any, index: number) => ({
+    
+    const pieChartData = (categories || [])
+    .filter((cat: any) => cat.parent === 'none')
+    .map((category: any, index: number) => ({
       name: category.name,
       value: category.totalAmount,
-      color: COLORS[index % COLORS.length]
-  }))
+      color: COLORS[index % COLORS.length],
+    }));
+
   return (
       <Card className="max-w-full overflow-hidden">
         <CardHeader>
